@@ -44,3 +44,18 @@ changeFormat <- function(file, cores) {
 
   return(NewFormat)
 }
+
+
+# 1.1: get the copy number matrix
+CN_seq <- function(input, Template){
+
+  c <- list()
+  c <- lapply(Template, function(i) {
+    as.integer(input[[i]][["bins"]]$copy.number)}
+  )
+
+  c <- as.data.frame(c)
+  colnames(c) <- Template
+
+  return(c)
+}
