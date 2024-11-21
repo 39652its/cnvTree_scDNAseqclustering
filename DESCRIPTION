@@ -10,9 +10,22 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.0
+RoxygenNote: 7.3.2
 Imports: 
     dplyr,
+    tidyr,
+    tidyverse,
+    stringr,
     GenomicRanges,
+    IRanges,
     data.table,
-    future.apply
+    tibble,
+    openxlsx, 
+    gdata,
+    future,
+    Rfast,
+    ggpubr,
+    ComplexHeatmap,
+    circlize
+Depends: 
+    R (>= 2.10)
