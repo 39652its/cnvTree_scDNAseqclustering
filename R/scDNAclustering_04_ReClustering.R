@@ -1,20 +1,30 @@
-##### 04: Reclustering
-
 # 4.1: pqArm_recluster() calculate the similarity between small clusters and >2 cells clusters
+#' Calculate the similarity between pqArm clusters
+#'
+#' @param pqArm_cluster A table recorded the clustering result and pqArm clustering result for each cell. This table recorded the clustering history in each step.
+#' @param Cluster An integer for the specific cluster to calculate.
+#'
+#' @importFrom magrittr %>%
+#' @importFrom rlang .data
+#'
+#' @return A numeric matrix recorded similarity between pqArm clusters. The similarity is calculated by Euclidean distance between each pattern of pqArm cluster.
+#' @export
+#'
+#' @examples
 pqArm_recluster <- function(pqArm_cluster, Cluster){
   # pqArm_cluster <- read.xlsx(xlsxFile = FILEpath) ##這裡需要檢查資料的function
   pqArm_cluster <- pqArm_cluster %>%
-    filter(cluster%in%Cluster)
+    dplyr::filter(cluster%in%Cluster)
 
   # unique pattern output
   Pattern_more10 <- pqArm_cluster %>%
-    filter(pqArm_pattern_cellnum >= 2) %>%
-    pull(pqArm_pattern) %>%
+    dplyr::filter(pqArm_pattern_cellnum >= 2) %>%
+    dplyr::pull(pqArm_pattern) %>%
     unique()
 
   Pattern_less10 <- pqArm_cluster %>%
-    filter(pqArm_pattern_cellnum < 10, pqArm_pattern_cellnum >= 2) %>%
-    pull(pqArm_pattern) %>%
+    dplyr::filter(pqArm_pattern_cellnum < 10, pqArm_pattern_cellnum >= 2) %>%
+    dplyr::pull(pqArm_pattern) %>%
     unique()
 
   # check any Pattern_more10 or Pattern_less10 is NULL
@@ -48,9 +58,17 @@ pqArm_recluster <- function(pqArm_cluster, Cluster){
 
 
 # 4.1.1: pqArm_cluster.pattern() convert each cluster pattern from vector to sequence
+#' Covert pqArm pattern from string for vector format
+#'
+#' @param pattern A string with integers from each chromosome p and q arm copy number values combine with "_".
+#'
+#' @return A vector with copy number values from each chromosome p and q arm.
+#' @export
+#'
+#' @examples
 pqArm_cluster.pattern <- function(pattern){
   P <- pattern %>%
-    strsplit(. , split = "_") %>%
+    base::strsplit(. , split = "_") %>%
     data.frame() %>%
     setNames(c(pattern)) %>%
     mutate_if(is.character, as.numeric)
@@ -59,15 +77,38 @@ pqArm_cluster.pattern <- function(pattern){
 }
 
 
-# 4.1.2: euclidean() euclidian distance calculation
+# 4.1.2: euclidean() euclidean distance calculation
+#' Euclidean distance calculation
+#'
+#' @param a A numeric vector with same length as vector b.
+#' @param b A numeric vector with same length as vector a.
+#'
+#' @return A numeric value. Euclidean distance is calculated between the two vectors (2 norm aka L_2), sqrt(sum((x_i - y_i)^2)).
+#' @export
+#'
+#' @examples
 euclidean <- function(a, b){
   sqrt(sum((a - b)^2))
 }
 
 
 # 4.2: pqArm_reclustering_dif() output the different ratio in different pqArm at bins-level between two clusters
+#' Calculation of different ratio at bins-level between different pqArm clusters
+#'
+#' @param input A list of cells in GRanges-format object.
+#' @param pqArm_recluster_sim A numeric matrix recorded similarity between pqArm clusters.
+#' @param pqArm_cluster A table recorded the clustering result and pqArm clustering result for each cell. This table recorded the clustering history in each step.
+#' @param Cluster An integer for the specific cluster to calculate.
+#' @param pqArm_file A table for cytoband information seen on Giemsa-stained chromosomes.
+#'
+#' @return A table with columns between whole cluster and each different ratio at bin-level.
+#' Returns the ratio of bin-level differences between each cluster and its most similar cluster in each differing p or q arm.
+#' 回傳每個cluster與其相似性最高的cluster 間，在每個差異的p/qArm中，兩個cluster 在bin-level 的比例
+#' @export
+#'
+#' @examples
 pqArm_reclustering_dif <- function(input, pqArm_recluster_sim, pqArm_cluster, Cluster, pqArm_file){
-  pqArm_sim <- apply(pqArm_recluster_sim, 2, function(x) min(x[x!=0]) )   #2: column is the more10 cluster pattern
+  pqArm_sim <- apply(pqArm_recluster_sim, 2, function(x) min(x[x!=0]) )   # 2: column is the more10 cluster pattern
 
 
   pqArm_sim <- as.data.frame(pqArm_sim)
@@ -126,6 +167,15 @@ pqArm_reclustering_dif <- function(input, pqArm_recluster_sim, pqArm_cluster, Cl
 
 
 # 4.2.1: pqArm_return.PQ() output the different pqArm between two clusters
+#' Return the different p or q arm position in chromosomes
+#'
+#' @param pattern A table with two columns recorded paired CNV pattern.
+#' @param PQarm A vector recorded the chromosome order list.
+#'
+#' @return A vector stands for the different p or q arm in chromosome between two clusters.
+#' @export
+#'
+#' @examples
 pqArm_return.PQ <- function(pattern, PQarm){
   pqArm_list <- PQarm
 
@@ -141,6 +191,17 @@ pqArm_return.PQ <- function(pattern, PQarm){
 
 
 # 4.2.2: pqArm_return.Bins() select different pqArm to output the region at bin-level
+#' Output the bin-level copy number sequence in different p or q arm chromosome
+#'
+#' @param Pattern A string with integers from each chromosome p and q arm copy number values combine with "_".
+#' @param which_Arm A vector stands for the different p or q arm in chromosome between two clusters.
+#' @param Tem A table recorded the clustering result and pqArm clustering result for each cell. This table recorded the clustering history in each step.
+#' @param CN_matrix A integer matrix, which column names are selected cellIDs and row names are genome ranges separated in fixed bins.
+#'
+#' @return A numeric vector which each element stands for a mode value in each bin of a cluster of cells.
+#' @export
+#'
+#' @examples
 pqArm_return.Bins <- function(Pattern, which_Arm, Tem, CN_matrix){
   ID <- Tem %>%
     filter(pqArm_pattern %in% c(Pattern)) %>%
@@ -164,6 +225,18 @@ pqArm_return.Bins <- function(Pattern, which_Arm, Tem, CN_matrix){
 
 
 # 4.3: pqArm_reclusterBy_ratio_target() filter ratio and merge the clusters if criteria meets
+#' Check pqArm clusters meet the criteria of different ratio in the different chromosome
+#'
+#' @param pqArm_cluster A table recorded the clustering result and pqArm clustering result for each cell. This table recorded the clustering history in each step.
+#' @param Cluster An integer for the specific cluster to calculate.
+#' @param pqReclsut_sim A table with columns between whole cluster and each different ratio at bin-level.
+#' Returns the ratio of bin-level differences between each cluster and its most similar cluster in each differing p or q arm.
+#' @param difratio_chr A numeric value set for criteria of different ratio in the different chromosome.
+#'
+#' @return A list stored characters stands for clusters to be grouped together.
+#' @export
+#'
+#' @examples
 pqArm_reclusterBy_ratio_target <- function(pqArm_cluster, Cluster, pqReclsut_sim, difratio_chr){
   # pqArm_cluster <- read.xlsx(xlsxFile = FILEpath)
   pqArm_cluster <- pqArm_cluster %>%
@@ -258,6 +331,16 @@ pqArm_reclusterBy_ratio_target <- function(pqArm_cluster, Cluster, pqReclsut_sim
 
 
 # 4.4: pqArm_recluster_result() reset the content in pqArmCluster_CellID.xlsx and merge final result
+#' Output final results of Re-clustering step
+#'
+#' @param pqArm_cluster A table recorded the clustering result and pqArm clustering result for each cell. This table recorded the clustering history in each step.
+#' @param Cluster An integer for the specific cluster to calculate.
+#' @param pqReclsut_target A list stored characters stands for clusters to be grouped together.
+#'
+#' @return A table recorded result of clustering, pqArm clustering and Reclustering steps for each cell. Table 'pqArm_cluster' will be updated.
+#' @export
+#'
+#' @examples
 pqArm_recluster_result <- function(pqArm_cluster, Cluster, pqReclsut_target){
   # pqArm_cluster <- read.xlsx(xlsxFile = FILEpath)
   pqArm_cluster = pqArm_cluster %>%
@@ -277,6 +360,14 @@ pqArm_recluster_result <- function(pqArm_cluster, Cluster, pqReclsut_target){
 
 
 # 4.4.1: pqArm_reclustering_summary() create pqArm clustering final results
+#' Output summary of reclustering results
+#'
+#' @param Data A table recorded the clustering result and pqArm clustering result for each cell. This table recorded the clustering history in each step.
+#'
+#' @return A table with columns "Recluster_pattern", "Recluster_cellnum", and "Recluster_cluster" to summarize the result of reclustering step.
+#' @export
+#'
+#' @examples
 pqArm_reclustering_summary <- function(Data){
   cluster_table <- table(Data) %>%
     as.data.frame() %>%
@@ -287,4 +378,3 @@ pqArm_reclustering_summary <- function(Data){
 
   return(cluster_table)
 }
-

@@ -1,31 +1,40 @@
 Package: cnvTree
-Type: Package
-Title: Clustering and evolutionary history construction based on copy number variations in single-cell data.
+Title: Clustering and evolutionary history construction based on copy number variations in single-cell data
 Version: 0.1.0
-Author: Lo, Yi-Tzu
-Maintainer: Lo, Yi-Tzu <it3101.bt11@nycu.edu.tw>
-Description: Provides functionality for clustering and evolutionary history construction
+Authors@R: c(
+    person(given = "Ting-Wen",
+           family = "Chen",
+           email = "twc@nycu.edu.tw",
+           role = c("aut"),
+           comment = c(ORCID = "0000-0003-4028-2375")),
+    person(given = "Yi-Tzu",
+           family = "Lo",
+           email = "it35101.bt11@nycu.edu.tw",
+           role = c("cre")))
+Description: Provides functionality for clustering and evolutionary history construction 
     based on copy number variation in single-cell data.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
-Imports: 
+RoxygenNote: 7.2.3
+Imports:
     dplyr,
-    tidyr,
+    tidyr, 
+    magrittr,
+    rlang, 
     tidyverse,
     stringr,
     GenomicRanges,
     IRanges,
-    data.table,
-    tibble,
+    data.table, 
+    tibble, 
     openxlsx, 
     gdata,
-    future,
-    Rfast,
+    future, 
+    Rfast, 
     ggpubr,
     ComplexHeatmap,
     circlize
-Depends: 
-    R (>= 2.10)
+Depends:
+    R (>= 4.2)

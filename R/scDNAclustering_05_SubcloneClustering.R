@@ -1,5 +1,3 @@
-##### 05: Subclone clustering
-
 # 5.0: collect_cluster_bp() collect all break points in the cluster
 collect_cluster_bp <- function(input, Clustering_output, Recluster_label){
   selected_files <- Clustering_output %>%
@@ -500,4 +498,3 @@ cnvRegion.toPQarm <- function(FILE, pqArm_file){
 
   return(Final_output)
 }
-

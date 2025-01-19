@@ -1,9 +1,3 @@
-##### 07: Total steps
-
-# 7.0: input data and change format
-# Sample <- changeFormat(file = file)
-
-
 # 7.0.1: Quick QC
 # 1. Aneufider
 QuickQC_Aneufider <- function(input, Spikiness, Bdistance){
@@ -240,6 +234,5 @@ scDNA_Output <- function(input, Summary, pqArm_file, output.dir=getwd(), consecu
                    cellnum_name = "Subclone_cellnum", cellcutoff = cellcutoff, cluster_name = "Subclone")
 
   # 6. cluster heatmap with dendrogram
-
+  scDNA_CNVpattern(Input=DNA_superimpose$DNA_cluster, DeterminedCNVs=CNV_Data, FILEpath=output.dir, FILEname="/cnvTree.scDNAseq_heatmap.png")
 }
-

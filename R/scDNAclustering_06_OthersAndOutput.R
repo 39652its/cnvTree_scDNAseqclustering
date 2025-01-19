@@ -1,5 +1,3 @@
-##### 06: Other supported function
-
 # 6.1: startTimed(), endTimed() for time calculating
 startTimed <- function(...){
   x <- paste0(..., collapse = "")
@@ -175,7 +173,7 @@ Totalcluster_pdf <- function(Input, Template, FILEname, FILEpath, pqArm_file, ce
          units = "px",
          limitsize = FALSE)
 
-  cat("Output ", FILEname, " is done. ","/n")
+  cat("Output ", FILEname, " is done. ","\n")
 }
 
 
@@ -298,4 +296,82 @@ scDNA.clustering <- function(Template){
 
 
   return(Template)
+}
+
+# 6.8: cluster w/ or w/o CNV pattern plot
+# Input = scRNA_output
+scDNA_CNVpattern <- function(Input, DeterminedCNVs, FILEpath, FILEname){
+  Data <- Input %>% select(!c(DNA_Cellnum, DNA_cluster))
+  Data <- as.matrix(as.data.frame(Data))
+  rownames(Data) <- paste0(Input$DNA_cluster, " (n=", Input$DNA_Cellnum, ")")
+  colnames(Data) <- DeterminedCNVs %>%
+    mutate(chr = sub("^chr", "", DeterminedCNVs$chr),
+           CN_type = ifelse(CN=="amp", "+", "-"),
+           chr_cytoband = paste0(CN_type, " ", chr, "(", first_band, "-", last_band, ")")) %>%
+    pull(chr_cytoband)
+
+  col_fun <- c("#EFEDF6", "#E6B745")
+
+  # h <- min(length(Input$RNA_cluster)*75, )
+  # w <- min((length(Input)-3)*150, 20000)
+
+  png(filename = paste0(FILEpath, FILEname),
+      width = (length(Input))*100,
+      height = (length(Input$DNA_cluster))*150)
+
+  Oncoscan <- ComplexHeatmap::Heatmap(Data,
+                                      name = "CNV exist",
+                                      cluster_rows = TRUE,
+                                      cluster_columns = FALSE,
+                                      show_column_dend = FALSE,
+                                      show_row_dend = TRUE,
+
+                                      show_heatmap_legend = TRUE,
+
+
+                                      col = col_fun,
+                                      rect_gp = gpar(col = "white", lwd = 2),
+                                      #cell_fun = cell_fun,
+                                      row_names_side = c("right"),
+                                      column_names_side = c("bottom"),
+
+
+                                      row_names_gp = gpar(fontsize = 40),
+                                      show_row_names = TRUE,
+                                      row_title  = "scDNA clusters",
+                                      row_title_gp = gpar(fontsize = 50, fontface = "bold"),
+                                      row_dend_width = unit(5, "cm"),  # 调整行树状图的宽度
+                                      row_dend_gp = gpar(lwd = 2, col = "black"),
+
+                                      column_names_gp = gpar(fontsize = 30),
+                                      column_title = "High-confidence CNV regions",
+                                      column_title_gp = gpar(fontsize = 50, fontface = "bold"),
+                                      column_title_side = "top",
+                                      column_names_rot = 90,
+                                      column_names_centered = FALSE,
+                                      border = "black",
+
+                                      heatmap_legend_param = list(
+                                        title_gp = gpar(fontsize = 40, fontface = "bold"),  # 調整圖例標題的字體大小
+                                        labels_gp = gpar(fontsize = 35),  # 調整圖例標示的字體大小
+                                        grid_width = unit(3, "cm"),
+                                        grid_height = unit(3, "cm")
+                                      )
+
+  )
+
+  # lgd = Legend(labels = c("0", "1"),
+  #              legend_gp = gpar(fill = col_fun),
+  #              title = "CNV exist",
+  #              title_gp = gpar(fontsize = 25),
+  #              labels_gp = gpar(fontsize = 18),
+  #              grid_width = unit(1.75, "cm"),
+  #              grid_height = unit(1.5, "cm"))
+  #
+
+
+  draw(Oncoscan, padding = unit(c(5, 2, 2, 2), "cm"))
+
+  dev.off()
+
 }

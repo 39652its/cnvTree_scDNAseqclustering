@@ -7,12 +7,12 @@
 CN_seq(input, Template)
 }
 \arguments{
-\item{input}{a list with each cell in GRanges object.}
+\item{input}{A list with each cell in GRanges object.}
 
-\item{Template}{a list of selected cells.}
+\item{Template}{A list of selected cells.}
 }
 \value{
-a integer matrix, which column names are selected cellIDs and row names are genome ranges separated in fixed bins.
+A integer matrix, which column names are selected cellIDs and row names are genome ranges separated in fixed bins.
 }
 \description{
 Gather copy number matrix in selected cells
@@ -20,7 +20,6 @@ Gather copy number matrix in selected cells
 \examples{
 file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 Example_data <- changeFormat(file = file_path, core = 4)
-cellIDs <- names(Example_data)[1:10]
-CNmatrix <- CN_seq(input = Example_data, Template = cellIDs)
+CNmatrix <- CN_seq(input = Example_data, Template = names(Example_data)[1:10])
 
 }
