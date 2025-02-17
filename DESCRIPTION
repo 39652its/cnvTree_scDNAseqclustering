@@ -17,24 +17,31 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Imports:
     dplyr,
     tidyr, 
     magrittr,
     rlang, 
-    tidyverse,
     stringr,
     GenomicRanges,
     IRanges,
     data.table, 
     tibble, 
-    openxlsx, 
     gdata,
     future, 
     Rfast, 
     ggpubr,
     ComplexHeatmap,
-    circlize
+    circlize,
+    EnrichedHeatmap,
+    grDevices, 
+    S4Vectors,
+    ggplot2,
+    utils
+Suggests:
+    openxlsx,
+    tidyverse,
+    tidytable
 Depends:
     R (>= 4.2)

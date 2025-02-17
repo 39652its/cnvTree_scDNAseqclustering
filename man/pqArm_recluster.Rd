@@ -2,18 +2,22 @@
 % Please edit documentation in R/scDNAclustering_04_ReClustering.R
 \name{pqArm_recluster}
 \alias{pqArm_recluster}
-\title{Calculate the similarity between pqArm clusters}
+\title{Compute similarity between pqArm clusters}
 \usage{
 pqArm_recluster(pqArm_cluster, Cluster)
 }
 \arguments{
-\item{pqArm_cluster}{A table recorded the clustering result and pqArm clustering result for each cell. This table recorded the clustering history in each step.}
+\item{pqArm_cluster}{A data frame recording the pqArm clustering results for each cell, including the clustering history at each step.}
 
-\item{Cluster}{An integer for the specific cluster to calculate.}
+\item{Cluster}{An integer specifying the cluster for which similarity calculations are performed.}
 }
 \value{
-A numeric matrix recorded similarity between pqArm clusters. The similarity is calculated by Euclidean distance between each pattern of pqArm cluster.
+A numeric matrix representing the similarity between pqArm clusters.
+The similarity is computed based on the Euclidean distance between pqArm cluster patterns.
 }
 \description{
-Calculate the similarity between pqArm clusters
+This function calculates the similarity between pqArm clusters using
+Euclidean distance. The similarity matrix quantifies the differences
+in arm-level copy number variation (CNV) patterns across clusters.
 }
+\keyword{internal}

@@ -2,20 +2,30 @@
 % Please edit documentation in R/scDNAclustering_02_Clustering.R
 \name{CutTree}
 \alias{CutTree}
-\title{Divided in 2 groups based on the specific cluster}
+\title{Divide cells into two groups based on copy number variation in a specific cluster}
 \usage{
 CutTree(input, Template, Cluster_label)
 }
 \arguments{
-\item{input}{A list of cells in GRanges-format object.}
+\item{input}{A named list where each element is a \code{GRanges} object representing a single cell.}
 
-\item{Template}{A table result contains cellIDs and cluster column.}
+\item{Template}{A data frame containing two columns:
+\itemize{
+\item \code{cellID}: Unique identifier for each cell.
+\item \code{cluster}: Cluster assignment for each cell.
+}}
 
-\item{Cluster_label}{An integer. The specific cluster to divide in 2 cluster.}
+\item{Cluster_label}{An integer specifying the cluster label used to divide the cells into two groups.}
 }
 \value{
-A table recorded cell IDs and number of cluster(k=2).
+A data frame with two columns:
+\itemize{
+\item \code{cellID}: The unique identifier of each cell.
+\item \code{cluster}: The updated cluster assignment (k = 2).
+}
 }
 \description{
-Divided in 2 groups based on the specific cluster
+This function separates cells into two groups based on copy number variation in a specified cluster label
+from a provided clustering result table.
 }
+\keyword{internal}

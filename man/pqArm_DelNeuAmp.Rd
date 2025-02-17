@@ -2,16 +2,25 @@
 % Please edit documentation in R/scDNAclustering_03_pqArmClustering.R
 \name{pqArm_DelNeuAmp}
 \alias{pqArm_DelNeuAmp}
-\title{Based on copy number to separate in three types}
+\title{Categorize copy number variations into three types}
 \usage{
 pqArm_DelNeuAmp(matrix)
 }
 \arguments{
-\item{matrix}{An integer matrix which columns are cells and rows are fixed-bin size region in whole chromosomes.}
+\item{matrix}{An integer matrix where columns represent individual cells, and rows correspond
+to fixed-bin size genomic regions across all chromosomes.}
 }
 \value{
-A integer matrix only with 0, 1, 2 stands for Deletion(CN<2), Neutral(CN=2), and Amplification(CN>2).
+An integer matrix containing only values 0, 1, and 2, representing:
+\itemize{
+\item \code{0}: Deletion (CN < 2)
+\item \code{1}: Neutral (CN = 2)
+\item \code{2}: Amplification (CN > 2)
+}
 }
 \description{
-Based on copy number to separate in three types
+This function classifies copy number variations (CNVs) into three discrete categories:
+Deletion (CN < 2), Neutral (CN = 2), and Amplification (CN > 2).
+The input matrix represents copy number data across genomic regions for multiple cells.
 }
+\keyword{internal}

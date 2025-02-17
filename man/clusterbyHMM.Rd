@@ -2,26 +2,33 @@
 % Please edit documentation in R/scDNAclustering_02_Clustering.R
 \name{clusterbyHMM}
 \alias{clusterbyHMM}
-\title{Calculate each cell distance by each cell copy number than heirrachical clustering}
+\title{Hierarchical clustering of cells based on copy number variation}
 \usage{
 clusterbyHMM(input, selected, exclude.regions = NULL)
 }
 \arguments{
-\item{input}{A list of cells in GRanges-format object.}
+\item{input}{A named list where each element is a \code{GRanges} object representing a single cell.}
 
-\item{selected}{A list of cell IDs for cell clustering.}
+\item{selected}{A character vector specifying the \code{cellID}s of the cells to be included in clustering.}
 
-\item{exclude.regions}{A GRanges-class with regions that will be excluded from the computation of the clustering. This can be useful to exclude regions with artifacts.}
+\item{exclude.regions}{A \code{GRanges} object specifying genomic regions to exclude from clustering computation.
+This is useful for filtering out regions with artifacts.}
 }
 \value{
-A list() with ordered ID indices and the hierarchical clustering.
+A list containing:
+\itemize{
+\item \code{ordered_indices}: The ordered indices of cells based on hierarchical clustering.
+}
 }
 \description{
-Calculate each cell distance by each cell copy number than heirrachical clustering
+This function computes the pairwise distance between cells based on their copy number variations
+and performs hierarchical clustering.
 }
 \examples{
+\dontrun{
 file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 Example_data <- changeFormat(file = file_path, core = 4)
 Clustering_Result <- clusterbyHMM(input = Example_data, selected = names(Example_data)[1:10])
+}
 
 }

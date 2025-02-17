@@ -2,20 +2,28 @@
 % Please edit documentation in R/scDNAclustering_04_ReClustering.R
 \name{pqArm_recluster_result}
 \alias{pqArm_recluster_result}
-\title{Output final results of Re-clustering step}
+\title{Generate final results of the Re-Clustering step}
 \usage{
 pqArm_recluster_result(pqArm_cluster, Cluster, pqReclsut_target)
 }
 \arguments{
-\item{pqArm_cluster}{A table recorded the clustering result and pqArm clustering result for each cell. This table recorded the clustering history in each step.}
+\item{pqArm_cluster}{A data frame recording the pqArm-specific clustering results for each cell.
+This table tracks the clustering history at each step.}
 
-\item{Cluster}{An integer for the specific cluster to calculate.}
+\item{Cluster}{An integer specifying the cluster to be updated in the re-clustering process.}
 
-\item{pqReclsut_target}{A list stored characters stands for clusters to be grouped together.}
+\item{pqReclsut_target}{A list containing character vectors representing clusters that should be grouped together.}
 }
 \value{
-A table recorded result of clustering, pqArm clustering and Reclustering steps for each cell. Table 'pqArm_cluster' will be updated.
+A data frame containing updated clustering results, including:
+\itemize{
+\item \code{cluster}: The original clustering assignments.
+\item \code{pq_cluster}: The pqArm-based clustering assignments.
+\item \code{recluster}: The updated clustering result after the re-clustering step.
+}
 }
 \description{
-Output final results of Re-clustering step
+This function updates the clustering results by incorporating the re-clustering step,
+refining the pqArm-based clustering assignments.
 }
+\keyword{internal}

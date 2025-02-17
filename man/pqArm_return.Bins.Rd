@@ -2,22 +2,32 @@
 % Please edit documentation in R/scDNAclustering_04_ReClustering.R
 \name{pqArm_return.Bins}
 \alias{pqArm_return.Bins}
-\title{Output the bin-level copy number sequence in different p or q arm chromosome}
+\title{Extract bin-level copy number sequence in differentiated chromosome arms}
 \usage{
 pqArm_return.Bins(Pattern, which_Arm, Tem, CN_matrix)
 }
 \arguments{
-\item{Pattern}{A string with integers from each chromosome p and q arm copy number values combine with "_".}
+\item{Pattern}{A character string encoding copy number values for each chromosome p/q arm,
+with values concatenated using \verb{_}.}
 
-\item{which_Arm}{A vector stands for the different p or q arm in chromosome between two clusters.}
+\item{which_Arm}{A character vector specifying the chromosome arms (\code{p} or \code{q})
+that differ between the two clusters.}
 
-\item{Tem}{A table recorded the clustering result and pqArm clustering result for each cell. This table recorded the clustering history in each step.}
+\item{Tem}{A data frame recording the clustering history for each cell, including
+overall clustering results and p/q arm-specific clustering assignments.}
 
-\item{CN_matrix}{A integer matrix, which column names are selected cellIDs and row names are genome ranges separated in fixed bins.}
+\item{CN_matrix}{An integer matrix where:
+\itemize{
+\item Columns represent the \code{cellID}s of the specific cells.
+\item Rows represent genomic regions, divided into fixed bins.
+}}
 }
 \value{
-A numeric vector which each element stands for a mode value in each bin of a cluster of cells.
+A numeric vector where each element represents the mode copy number value
+for a given bin within a cluster of cells.
 }
 \description{
-Output the bin-level copy number sequence in different p or q arm chromosome
+This function retrieves the bin-level copy number sequence for chromosome p/q arms
+that show differences between two clusters.
 }
+\keyword{internal}

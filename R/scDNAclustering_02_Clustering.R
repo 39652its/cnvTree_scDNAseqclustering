@@ -1,19 +1,27 @@
 ##### 02: Clustering
 
 # 2.0: clusterbyHMM() based on AneuFinder::clusterHMMs(), calcuate distance than hierrachical clustering
-#' Calculate each cell distance by each cell copy number than heirrachical clustering
+#' Hierarchical clustering of cells based on copy number variation
 #'
-#' @param input A list of cells in GRanges-format object.
-#' @param selected A list of cell IDs for cell clustering.
-#' @param exclude.regions A GRanges-class with regions that will be excluded from the computation of the clustering. This can be useful to exclude regions with artifacts.
+#' This function computes the pairwise distance between cells based on their copy number variations
+#' and performs hierarchical clustering.
 #'
-#' @return A list() with ordered ID indices and the hierarchical clustering.
+#' @param input A named list where each element is a `GRanges` object representing a single cell.
+#' @param selected A character vector specifying the `cellID`s of the cells to be included in clustering.
+#' @param exclude.regions A `GRanges` object specifying genomic regions to exclude from clustering computation.
+#'   This is useful for filtering out regions with artifacts.
+#'
+#' @return A list containing:
+#'   - `ordered_indices`: The ordered indices of cells based on hierarchical clustering.
+
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 #' Example_data <- changeFormat(file = file_path, core = 4)
 #' Clustering_Result <- clusterbyHMM(input = Example_data, selected = names(Example_data)[1:10])
+#' }
 #'
 clusterbyHMM <- function(input, selected, exclude.regions = NULL){
   hmms <- input[selected]
@@ -41,12 +49,12 @@ clusterbyHMM <- function(input, selected, exclude.regions = NULL){
     })
   }
   constates[is.na(constates)] <- 0
-  vars <- apply(constates, 1, var, na.rm = TRUE)
+  vars <- apply(constates, 1, stats::var, na.rm = TRUE)
   endTimed(ptm)
 
   ptm <- startTimed("Clustering ...")
   if (!is.null(exclude.regions)) {
-    ind <- findOverlaps(hmms[[1]]$bins, exclude.regions)@from
+    ind <- GenomicRanges::findOverlaps(hmms[[1]]$bins, exclude.regions)@from
     constates <- constates[-ind, ]
   }
 
@@ -71,15 +79,19 @@ clusterbyHMM <- function(input, selected, exclude.regions = NULL){
 }
 
 # 2.1: CutTree_final() get the phylogenetic tree template
-#' Calculate phylogenetic tree results
+#' Construct a phylogenetic tree from copy number variation data
 #'
-#' @param input A list of cells in GRanges-format object.
-#' @param selected A list of cell IDs for cell clustering.
+#' This function performs hierarchical clustering on selected cells based on their copy number variations
+#' and derives a phylogenetic tree structure.
 #'
-#' @return A table recorded cell IDs and number of cluster(k=2).
-#' @export
+#' @param input A named list where each element is a `GRanges` object representing a single cell.
+#' @param selected A character vector specifying the `cellID`s of the cells to be included in the phylogenetic analysis.
 #'
-#' @examples
+#' @return A data frame with two columns:
+#'   - `cellID`: The unique identifier of each cell.
+#'   - `cluster`: The assigned cluster label (k = 2).
+#'
+#' @keywords internal
 #'
 CutTree_final <- function(input, selected){
   # 分群的原始檔，後面要用他作為基底
@@ -98,19 +110,25 @@ CutTree_final <- function(input, selected){
 }
 
 # 2.2: CutTree() Cut the tree repeatably
-#' Divided in 2 groups based on the specific cluster
+#' Divide cells into two groups based on copy number variation in a specific cluster
 #'
-#' @param input A list of cells in GRanges-format object.
-#' @param Template A table result contains cellIDs and cluster column.
-#' @param Cluster_label An integer. The specific cluster to divide in 2 cluster.
+#' This function separates cells into two groups based on copy number variation in a specified cluster label
+#' from a provided clustering result table.
 #'
-#' @return A table recorded cell IDs and number of cluster(k=2).
-#' @export
+#' @param input A named list where each element is a `GRanges` object representing a single cell.
+#' @param Template A data frame containing two columns:
+#'   - `cellID`: Unique identifier for each cell.
+#'   - `cluster`: Cluster assignment for each cell.
+#' @param Cluster_label An integer specifying the cluster label used to divide the cells into two groups.
 #'
 #' @importFrom rlang .data
 #' @importFrom magrittr %>%
 #'
-#' @examples
+#' @return A data frame with two columns:
+#'   - `cellID`: The unique identifier of each cell.
+#'   - `cluster`: The updated cluster assignment (k = 2).
+#'
+#' @keywords internal
 #'
 CutTree <- function(input, Template, Cluster_label){
   # selected.files建立
@@ -143,16 +161,18 @@ CutTree <- function(input, Template, Cluster_label){
 }
 
 # 2.3: Cluster_num() calculate the number of cells in cluster
-#' Calculate the number of cell in cluster
+#' Count the number of cells in a specific cluster
 #'
-#' @param Template A table result contains cellIDs and cluster column.
-#' @param Cluster_label An integer. The specific cluster need to calculate the number of cells.
+#' This function calculates the total number of cells that belong to a specified cluster.
 #'
-#' @return An integer represent the number of cell in specific cluster.
-#' @export
+#' @param Template A data frame containing two columns:
+#'   - `cellID`: Unique identifier for each cell.
+#'   - `cluster`: Cluster assignment for each cell.
+#' @param Cluster_label An integer specifying the cluster for which the number of cells will be counted.
 #'
-#' @examples
+#' @return An integer representing the number of cells in the specified cluster.
 #'
+#' @keywords internal
 Cluster_num <- function(Template, Cluster_label){
   # cat("Calculating numbers of cell in Cluster", Cluster_label, "...\n")
 
@@ -163,19 +183,24 @@ Cluster_num <- function(Template, Cluster_label){
 }
 
 # 2.4: Cluster_sim() calculate the similarity of cells in cluster
-#' Calculate the similarity of cells in cluster
+#' Compute the similarity of cells within a cluster
 #'
-#' @param Template A table result contains cellIDs and cluster column.
-#' @param SimCells  A matrix recorded similarity value between cell to cell.
-#' @param Cluster_label A list of cells in specific cluster label.
+#' This function calculates the overall similarity of cells within a specified cluster
+#' using a precomputed cell-to-cell similarity matrix.
 #'
-#' @return An integer represent the similarity in specific cluster.
-#' @export
+#' @param Template A data frame containing two columns:
+#'   - `cellID`: Unique identifier for each cell.
+#'   - `cluster`: Cluster assignment for each cell.
+#' @param SimCells A square matrix where each element `[i, j]` represents the similarity
+#'   score between `cellID[i]` and `cellID[j]`.
+#' @param Cluster_label A character vector containing the `cellID`s of cells that belong to the specified cluster.
 #'
 #' @importFrom rlang .data
 #' @importFrom magrittr %>%
 #'
-#' @examples
+#' @return A numeric value representing the overall similarity of the cells within the specified cluster.
+#'
+#' @keywords internal
 #'
 Cluster_sim <- function(Template, SimCells, Cluster_label){
   # cat("Calculating cell similarity in Cluster ",  Cluster_label, " ...\n")
@@ -191,15 +216,19 @@ Cluster_sim <- function(Template, SimCells, Cluster_label){
   return(Similarity)
 }
 
-# Function to calculate distance for a chunk of the matrix
-#' Calculate the similarity value between cell to cell
+
+#' Compute pairwise similarity between cells
 #'
-#' @param binsMatrix A matrix recorded each cell copy number in bin-level.
+#' This function calculates the similarity values between cells based on their copy number
+#' variations at the bin level.
 #'
-#' @return A matrix recorded similarity value between cell to cell.
-#' @export
+#' @param binsMatrix A numeric matrix where each row represents a genomic bin
+#'   and each column represents a cell. The values indicate copy number variations.
 #'
-#' @examples
+#' @return A square numeric matrix where each element `[i, j]` represents the similarity
+#'   score between `cell[i]` and `cell[j]`.
+#'
+#' @keywords internal
 #'
 Cluster_SimTem <- function(binsMatrix) {
   ptm <- startTimed("Making similarity template ... ")

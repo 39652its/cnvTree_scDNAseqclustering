@@ -2,24 +2,32 @@
 % Please edit documentation in R/scDNAclustering_01_Input.R
 \name{CN_seq}
 \alias{CN_seq}
-\title{Gather copy number matrix in selected cells}
+\title{Generate copy number matrix for selected cells}
 \usage{
 CN_seq(input, Template)
 }
 \arguments{
-\item{input}{A list with each cell in GRanges object.}
+\item{input}{A named list where each element represents a single cell as a \code{GRanges} object.}
 
-\item{Template}{A list of selected cells.}
+\item{Template}{A character vector containing the \code{cellID}s of selected cells to be included in the matrix.}
 }
 \value{
-A integer matrix, which column names are selected cellIDs and row names are genome ranges separated in fixed bins.
+An integer matrix:
+\itemize{
+\item Columns represent the selected \code{cellID}s.
+\item Rows represent genomic regions, separated into fixed bins.
+}
 }
 \description{
-Gather copy number matrix in selected cells
+This function extracts copy number variations from a list of \code{GRanges} objects
+and organizes them into an integer matrix. The matrix contains selected cells as columns,
+with genomic regions (fixed bins) as rows.
 }
 \examples{
+\dontrun{
 file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 Example_data <- changeFormat(file = file_path, core = 4)
 CNmatrix <- CN_seq(input = Example_data, Template = names(Example_data)[1:10])
+}
 
 }

@@ -2,16 +2,20 @@
 % Please edit documentation in R/scDNAclustering_02_Clustering.R
 \name{Cluster_SimTem}
 \alias{Cluster_SimTem}
-\title{Calculate the similarity value between cell to cell}
+\title{Compute pairwise similarity between cells}
 \usage{
 Cluster_SimTem(binsMatrix)
 }
 \arguments{
-\item{binsMatrix}{A matrix recorded each cell copy number in bin-level.}
+\item{binsMatrix}{A numeric matrix where each row represents a genomic bin
+and each column represents a cell. The values indicate copy number variations.}
 }
 \value{
-A matrix recorded similarity value between cell to cell.
+A square numeric matrix where each element \verb{[i, j]} represents the similarity
+score between \code{cell[i]} and \code{cell[j]}.
 }
 \description{
-Calculate the similarity value between cell to cell
+This function calculates the similarity values between cells based on their copy number
+variations at the bin level.
 }
+\keyword{internal}

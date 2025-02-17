@@ -2,7 +2,7 @@
 % Please edit documentation in R/scDNAclustering_04_ReClustering.R
 \name{pqArm_reclustering_dif}
 \alias{pqArm_reclustering_dif}
-\title{Calculation of different ratio at bins-level between different pqArm clusters}
+\title{Compute bin-level difference ratios between pqArm clusters}
 \usage{
 pqArm_reclustering_dif(
   input,
@@ -13,21 +13,30 @@ pqArm_reclustering_dif(
 )
 }
 \arguments{
-\item{input}{A list of cells in GRanges-format object.}
+\item{input}{A named list where each element is a \code{GRanges} object representing a single cell.}
 
-\item{pqArm_recluster_sim}{A numeric matrix recorded similarity between pqArm clusters.}
+\item{pqArm_recluster_sim}{A numeric matrix recording the similarity between pqArm clusters.}
 
-\item{pqArm_cluster}{A table recorded the clustering result and pqArm clustering result for each cell. This table recorded the clustering history in each step.}
+\item{pqArm_cluster}{A data frame recording the pqArm clustering history for each cell.}
 
-\item{Cluster}{An integer for the specific cluster to calculate.}
+\item{Cluster}{An integer specifying the cluster for which the bin-level
+difference ratio is computed.}
 
-\item{pqArm_file}{A table for cytoband information seen on Giemsa-stained chromosomes.}
+\item{pqArm_file}{A data frame containing cytoband information observed on Giemsa-stained chromosomes.}
 }
 \value{
-A table with columns between whole cluster and each different ratio at bin-level.
-Returns the ratio of bin-level differences between each cluster and its most similar cluster in each differing p or q arm.
-回傳每個cluster與其相似性最高的cluster 間，在每個差異的p/qArm中，兩個cluster 在bin-level 的比例
+A data frame summarizing bin-level difference ratios across clusters.
+The output includes:
+\itemize{
+\item \verb{cluster"}: The cluster identifier.
+\item \code{pqArm}: The differing p or q arm.
+\item \code{bin_difference_ratio}: The ratio of bin-level differences between each cluster and its most similar cluster.
+}
 }
 \description{
-Calculation of different ratio at bins-level between different pqArm clusters
+This function calculates the bin-level difference ratios between different
+pqArm clusters. The ratio represents the degree of difference in copy number
+variations (CNVs) between each cluster and its most similar cluster,
+considering variations at the p and q arms.
 }
+\keyword{internal}

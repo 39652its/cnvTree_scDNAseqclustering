@@ -2,18 +2,25 @@
 % Please edit documentation in R/scDNAclustering_03_pqArmClustering.R
 \name{pqArm_clustering}
 \alias{pqArm_clustering}
-\title{Based on arm-level copy number pattern to cluster the cells}
+\title{Cluster cells based on arm-level copy number patterns}
 \usage{
 pqArm_clustering(matrix, Label)
 }
 \arguments{
-\item{matrix}{An integer matrix which columns are cells and rows are arm-level in each chromosome.}
+\item{matrix}{An integer matrix where columns represent individual cells, and rows correspond
+to arm-level copy number regions across chromosomes.}
 
-\item{Label}{An integer for the specific cluster to calculate in arm-level result.}
+\item{Label}{An integer specifying the cluster to compute in the arm-level CNV analysis.}
 }
 \value{
+A data frame recording the clustering results for each cell, including
+the clustering history at each step.
+
 A table recorded the clustering result for each cell. This table recorded the clustering history in each step.
 }
 \description{
-Based on arm-level copy number pattern to cluster the cells
+This function performs clustering on cells using arm-level copy number variations (CNVs).
+It groups cells into clusters based on chromosomal arm-level CNV profiles, providing
+a hierarchical clustering history at each step.
 }
+\keyword{internal}

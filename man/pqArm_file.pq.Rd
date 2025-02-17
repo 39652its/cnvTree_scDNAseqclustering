@@ -2,16 +2,19 @@
 % Please edit documentation in R/scDNAclustering_03_pqArmClustering.R
 \name{pqArm_file.pq}
 \alias{pqArm_file.pq}
-\title{Remake the cytoband information from UCSC database for arm-level ranges to specific format}
+\title{Convert UCSC cytoband data to arm-level chromosomal ranges}
 \usage{
 pqArm_file.pq(Template)
 }
 \arguments{
-\item{Template}{A directory direct to UCSC cytoband file.}
+\item{Template}{A character string specifying the file path to the UCSC cytoband data.}
 }
 \value{
-A table labeled ranges of p/q arm regions in each chromosome for further CNVs calculation.
+A data frame with labeled chromosomal p/q arm regions, formatted for CNV analysis.
 }
 \description{
-Remake the cytoband information from UCSC database for arm-level ranges to specific format
+This function processes cytoband information from the UCSC database and
+reformats it into a structured table containing p/q arm regions for each chromosome.
+The output is designed for downstream copy number variation (CNV) analysis.
 }
+\keyword{internal}

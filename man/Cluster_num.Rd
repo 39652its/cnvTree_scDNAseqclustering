@@ -2,18 +2,23 @@
 % Please edit documentation in R/scDNAclustering_02_Clustering.R
 \name{Cluster_num}
 \alias{Cluster_num}
-\title{Calculate the number of cell in cluster}
+\title{Count the number of cells in a specific cluster}
 \usage{
 Cluster_num(Template, Cluster_label)
 }
 \arguments{
-\item{Template}{A table result contains cellIDs and cluster column.}
+\item{Template}{A data frame containing two columns:
+\itemize{
+\item \code{cellID}: Unique identifier for each cell.
+\item \code{cluster}: Cluster assignment for each cell.
+}}
 
-\item{Cluster_label}{An integer. The specific cluster need to calculate the number of cells.}
+\item{Cluster_label}{An integer specifying the cluster for which the number of cells will be counted.}
 }
 \value{
-An integer represent the number of cell in specific cluster.
+An integer representing the number of cells in the specified cluster.
 }
 \description{
-Calculate the number of cell in cluster
+This function calculates the total number of cells that belong to a specified cluster.
 }
+\keyword{internal}

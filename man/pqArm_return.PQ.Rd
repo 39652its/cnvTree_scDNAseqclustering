@@ -2,18 +2,22 @@
 % Please edit documentation in R/scDNAclustering_04_ReClustering.R
 \name{pqArm_return.PQ}
 \alias{pqArm_return.PQ}
-\title{Return the different p or q arm position in chromosomes}
+\title{Identify differences in p/q arm positions between chromosome clusters}
 \usage{
 pqArm_return.PQ(pattern, PQarm)
 }
 \arguments{
-\item{pattern}{A table with two columns recorded paired CNV pattern.}
+\item{pattern}{A data frame with two columns representing paired CNV patterns.
+Each row corresponds to a specific chromosome region comparison.}
 
-\item{PQarm}{A vector recorded the chromosome order list.}
+\item{PQarm}{A character vector specifying the chromosome order list.}
 }
 \value{
-A vector stands for the different p or q arm in chromosome between two clusters.
+A character vector indicating the chromosome arms (\code{p} or \code{q})
+that show differences between the two clusters.
 }
 \description{
-Return the different p or q arm position in chromosomes
+This function detects differences in the p or q arm positions of chromosomes
+between two clusters based on copy number variation (CNV) patterns.
 }
+\keyword{internal}

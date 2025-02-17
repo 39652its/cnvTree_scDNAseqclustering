@@ -2,23 +2,34 @@
 % Please edit documentation in R/scDNAclustering_01_Input.R
 \name{changeFormat}
 \alias{changeFormat}
-\title{Change .rds copy number data as GRanges format}
+\title{Convert copy number data from .rds to GRanges Format}
 \usage{
 changeFormat(file, cores)
 }
 \arguments{
-\item{file}{A table with column names: "cellID", "seqnames", "start", "end", and "copy.number" in .rds format.}
+\item{file}{A \code{.rds} file containing a data frame with the following required columns:
+\itemize{
+\item \code{cellID}: Unique identifier for each cell.
+\item \code{seqnames}: Chromosome or sequence name.
+\item \code{start}: Start position of the segment.
+\item \code{end}: End position of the segment.
+\item \code{copy.number}: Copy number value for the segment.
+}}
 
-\item{cores}{A integer. parallel execution in number of cores, default=1.}
+\item{cores}{An integer specifying the number of CPU cores to use for parallel processing, default=1.}
 }
 \value{
-a list with each cell in GRanges object.
+A named list where each element represents a cell, containing its corresponding genomic segments as a \code{GRanges} object.
 }
 \description{
-Change .rds copy number data as GRanges format
+This function reads a \code{.rds} file containing copy number variation (CNV) data
+and converts it into a list of \code{GRanges} objects, where each element corresponds to a single cell.
 }
 \examples{
+\dontrun{
 file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 Example_data <- changeFormat(file = file_path, core = 4)
+CNmatrix <- CN_seq(input = Example_data, Template = names(Example_data)[1:10])
+}
 
 }

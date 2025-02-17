@@ -2,16 +2,19 @@
 % Please edit documentation in R/scDNAclustering_03_pqArmClustering.R
 \name{pqArm_file.remake}
 \alias{pqArm_file.remake}
-\title{Remake the cytoband information from UCSC database for "acen" and "gvar" cytoband types to specific format}
+\title{Extract chromosome arm ranges from UCSC cytoband data}
 \usage{
 pqArm_file.remake(FILE)
 }
 \arguments{
-\item{FILE}{A directory direct to UCSC cytoband file.}
+\item{FILE}{A character string specifying the file path to the UCSC cytoband file.}
 }
 \value{
-A table labeled ranges of "acen" and "gvar" cytoband types for further masking ranges to exclude the CNVs from experiments.
+A table containing the ranges of chromosomal arms, excluding centromeric regions.
+It includes cytobands of type \code{acen} and \code{gvar}, along with the ranges of the preceding and following cytobands.
 }
 \description{
-Remake the cytoband information from UCSC database for "acen" and "gvar" cytoband types to specific format
+This function processes a UCSC cytoband file to extract the ranges of chromosome long
+and short arms, excluding the centromere regions.
 }
+\keyword{internal}

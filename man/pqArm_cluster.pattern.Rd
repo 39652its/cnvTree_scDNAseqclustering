@@ -2,16 +2,20 @@
 % Please edit documentation in R/scDNAclustering_04_ReClustering.R
 \name{pqArm_cluster.pattern}
 \alias{pqArm_cluster.pattern}
-\title{Covert pqArm pattern from string for vector format}
+\title{Convert pqArm pattern string to vector format}
 \usage{
 pqArm_cluster.pattern(pattern)
 }
 \arguments{
-\item{pattern}{A string with integers from each chromosome p and q arm copy number values combine with "_".}
+\item{pattern}{A character string encoding copy number values for each chromosome's
+p and q arms, separated by underscores ("_").}
 }
 \value{
-A vector with copy number values from each chromosome p and q arm.
+A numeric vector containing the parsed copy number values
+for each chromosome's p and q arm.
 }
 \description{
-Covert pqArm pattern from string for vector format
+This function transforms a pqArm pattern string into a numeric vector,
+where each element represents the copy number of a chromosome's p or q arm.
 }
+\keyword{internal}

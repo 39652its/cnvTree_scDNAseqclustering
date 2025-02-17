@@ -2,20 +2,27 @@
 % Please edit documentation in R/scDNAclustering_02_Clustering.R
 \name{Cluster_sim}
 \alias{Cluster_sim}
-\title{Calculate the similarity of cells in cluster}
+\title{Compute the similarity of cells within a cluster}
 \usage{
 Cluster_sim(Template, SimCells, Cluster_label)
 }
 \arguments{
-\item{Template}{A table result contains cellIDs and cluster column.}
+\item{Template}{A data frame containing two columns:
+\itemize{
+\item \code{cellID}: Unique identifier for each cell.
+\item \code{cluster}: Cluster assignment for each cell.
+}}
 
-\item{SimCells}{A matrix recorded similarity value between cell to cell.}
+\item{SimCells}{A square matrix where each element \verb{[i, j]} represents the similarity
+score between \code{cellID[i]} and \code{cellID[j]}.}
 
-\item{Cluster_label}{A list of cells in specific cluster label.}
+\item{Cluster_label}{A character vector containing the \code{cellID}s of cells that belong to the specified cluster.}
 }
 \value{
-An integer represent the similarity in specific cluster.
+A numeric value representing the overall similarity of the cells within the specified cluster.
 }
 \description{
-Calculate the similarity of cells in cluster
+This function calculates the overall similarity of cells within a specified cluster
+using a precomputed cell-to-cell similarity matrix.
 }
+\keyword{internal}

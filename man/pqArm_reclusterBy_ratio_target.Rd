@@ -2,7 +2,7 @@
 % Please edit documentation in R/scDNAclustering_04_ReClustering.R
 \name{pqArm_reclusterBy_ratio_target}
 \alias{pqArm_reclusterBy_ratio_target}
-\title{Check pqArm clusters meet the criteria of different ratio in the different chromosome}
+\title{Validate pqArm clusters based on difference ratio criteria}
 \usage{
 pqArm_reclusterBy_ratio_target(
   pqArm_cluster,
@@ -12,18 +12,20 @@ pqArm_reclusterBy_ratio_target(
 )
 }
 \arguments{
-\item{pqArm_cluster}{A table recorded the clustering result and pqArm clustering result for each cell. This table recorded the clustering history in each step.}
+\item{pqArm_cluster}{A data frame recording the pqArm-specific clustering results for each cell.
+This table tracks the clustering history at each step.}
 
-\item{Cluster}{An integer for the specific cluster to calculate.}
+\item{Cluster}{An integer specifying the cluster to analyze.}
 
-\item{pqReclsut_sim}{A table with columns between whole cluster and each different ratio at bin-level.
-Returns the ratio of bin-level differences between each cluster and its most similar cluster in each differing p or q arm.}
+\item{pqReclsut_sim}{A data frame containing the similarity scores between the entire cluster and each different ratio at the bin level.
+It returns the bin-level difference ratio between each cluster and its most similar cluster for each differing p or q arm.}
 
-\item{difratio_chr}{A numeric value set for criteria of different ratio in the different chromosome.}
+\item{difratio_chr}{A numeric value defining the threshold for acceptable difference ratios across different chromosomes.}
 }
 \value{
-A list stored characters stands for clusters to be grouped together.
+A list containing character vectors representing clusters that should be grouped together.
 }
 \description{
-Check pqArm clusters meet the criteria of different ratio in the different chromosome
+This function evaluates whether pqArm clusters meet a predefined difference ratio criterion across different chromosomes.
 }
+\keyword{internal}

@@ -1,31 +1,36 @@
 # 4.1: pqArm_recluster() calculate the similarity between small clusters and >2 cells clusters
-#' Calculate the similarity between pqArm clusters
+#' Compute similarity between pqArm clusters
 #'
-#' @param pqArm_cluster A table recorded the clustering result and pqArm clustering result for each cell. This table recorded the clustering history in each step.
-#' @param Cluster An integer for the specific cluster to calculate.
+#' This function calculates the similarity between pqArm clusters using
+#' Euclidean distance. The similarity matrix quantifies the differences
+#' in arm-level copy number variation (CNV) patterns across clusters.
+#'
+#' @param pqArm_cluster A data frame recording the pqArm clustering results for each cell, including the clustering history at each step.
+#' @param Cluster An integer specifying the cluster for which similarity calculations are performed.
 #'
 #' @importFrom magrittr %>%
 #' @importFrom rlang .data
 #'
-#' @return A numeric matrix recorded similarity between pqArm clusters. The similarity is calculated by Euclidean distance between each pattern of pqArm cluster.
-#' @export
+#' @return A numeric matrix representing the similarity between pqArm clusters.
+#' The similarity is computed based on the Euclidean distance between pqArm cluster patterns.
 #'
-#' @examples
+#' @keywords internal
+#'
 pqArm_recluster <- function(pqArm_cluster, Cluster){
   # pqArm_cluster <- read.xlsx(xlsxFile = FILEpath) ##這裡需要檢查資料的function
   pqArm_cluster <- pqArm_cluster %>%
-    dplyr::filter(cluster%in%Cluster)
+    dplyr::filter(.data$cluster%in%Cluster)
 
   # unique pattern output
   Pattern_more10 <- pqArm_cluster %>%
-    dplyr::filter(pqArm_pattern_cellnum >= 2) %>%
-    dplyr::pull(pqArm_pattern) %>%
+    dplyr::filter(.data$pqArm_pattern_cellnum >= 2) %>%
+    dplyr::pull(.data$pqArm_pattern) %>%
     unique()
 
   Pattern_less10 <- pqArm_cluster %>%
-    dplyr::filter(pqArm_pattern_cellnum < 10, pqArm_pattern_cellnum >= 2) %>%
-    dplyr::pull(pqArm_pattern) %>%
-    unique()
+    dplyr::filter(.data$pqArm_pattern_cellnum < 10, .data$pqArm_pattern_cellnum >= 2) %>%
+    dplyr::pull(.data$pqArm_pattern) %>%
+    base::unique()
 
   # check any Pattern_more10 or Pattern_less10 is NULL
   if(length(Pattern_more10)==0 | length(Pattern_less10)==0){
@@ -58,55 +63,78 @@ pqArm_recluster <- function(pqArm_cluster, Cluster){
 
 
 # 4.1.1: pqArm_cluster.pattern() convert each cluster pattern from vector to sequence
-#' Covert pqArm pattern from string for vector format
+#' Convert pqArm pattern string to vector format
 #'
-#' @param pattern A string with integers from each chromosome p and q arm copy number values combine with "_".
+#' This function transforms a pqArm pattern string into a numeric vector,
+#' where each element represents the copy number of a chromosome's p or q arm.
 #'
-#' @return A vector with copy number values from each chromosome p and q arm.
-#' @export
+#' @param pattern A character string encoding copy number values for each chromosome's
+#' p and q arms, separated by underscores ("_").
 #'
-#' @examples
+#' @importFrom magrittr %>%
+#' @importFrom rlang .data
+#'
+#' @return A numeric vector containing the parsed copy number values
+#' for each chromosome's p and q arm.
+#'
+#' @keywords internal
+#'
 pqArm_cluster.pattern <- function(pattern){
   P <- pattern %>%
-    base::strsplit(. , split = "_") %>%
-    data.frame() %>%
-    setNames(c(pattern)) %>%
-    mutate_if(is.character, as.numeric)
+    base::strsplit(.data , split = "_") %>%
+    base::data.frame() %>%
+    stats::setNames(c(pattern)) %>%
+    dplyr::mutate_if(is.character, as.numeric)
 
   return(P)
 }
 
 
 # 4.1.2: euclidean() euclidean distance calculation
-#' Euclidean distance calculation
+#' Compute Euclidean distance between two vectors
 #'
-#' @param a A numeric vector with same length as vector b.
-#' @param b A numeric vector with same length as vector a.
+#' This function calculates the Euclidean distance (L₂ norm) between two numeric vectors.
+#' The Euclidean distance is computed as:
+#' \deqn{\sqrt{\sum (a_i - b_i)^2}}
 #'
-#' @return A numeric value. Euclidean distance is calculated between the two vectors (2 norm aka L_2), sqrt(sum((x_i - y_i)^2)).
-#' @export
+#' @param a A numeric vector of the same length as \code{b}.
+#' @param b A numeric vector of the same length as \code{a}.
 #'
-#' @examples
+#' @return A numeric value representing the Euclidean distance between the two vectors.
+#'
+#' @keywords internal
+#'
 euclidean <- function(a, b){
   sqrt(sum((a - b)^2))
 }
 
 
 # 4.2: pqArm_reclustering_dif() output the different ratio in different pqArm at bins-level between two clusters
-#' Calculation of different ratio at bins-level between different pqArm clusters
+#' Compute bin-level difference ratios between pqArm clusters
 #'
-#' @param input A list of cells in GRanges-format object.
-#' @param pqArm_recluster_sim A numeric matrix recorded similarity between pqArm clusters.
-#' @param pqArm_cluster A table recorded the clustering result and pqArm clustering result for each cell. This table recorded the clustering history in each step.
-#' @param Cluster An integer for the specific cluster to calculate.
-#' @param pqArm_file A table for cytoband information seen on Giemsa-stained chromosomes.
+#' This function calculates the bin-level difference ratios between different
+#' pqArm clusters. The ratio represents the degree of difference in copy number
+#' variations (CNVs) between each cluster and its most similar cluster,
+#' considering variations at the p and q arms.
 #'
-#' @return A table with columns between whole cluster and each different ratio at bin-level.
-#' Returns the ratio of bin-level differences between each cluster and its most similar cluster in each differing p or q arm.
-#' 回傳每個cluster與其相似性最高的cluster 間，在每個差異的p/qArm中，兩個cluster 在bin-level 的比例
-#' @export
+#' @param input A named list where each element is a `GRanges` object representing a single cell.
+#' @param pqArm_recluster_sim A numeric matrix recording the similarity between pqArm clusters.
+#' @param pqArm_cluster A data frame recording the pqArm clustering history for each cell.
+#' @param Cluster An integer specifying the cluster for which the bin-level
+#' difference ratio is computed.
+#' @param pqArm_file A data frame containing cytoband information observed on Giemsa-stained chromosomes.
 #'
-#' @examples
+#' @importFrom magrittr %>%
+#' @importFrom rlang .data
+#'
+#' @return A data frame summarizing bin-level difference ratios across clusters.
+#' The output includes:
+#'   - `cluster"`: The cluster identifier.
+#'   - `pqArm`: The differing p or q arm.
+#'   - `bin_difference_ratio`: The ratio of bin-level differences between each cluster and its most similar cluster.
+#'
+#' @keywords internal
+#'
 pqArm_reclustering_dif <- function(input, pqArm_recluster_sim, pqArm_cluster, Cluster, pqArm_file){
   pqArm_sim <- apply(pqArm_recluster_sim, 2, function(x) min(x[x!=0]) )   # 2: column is the more10 cluster pattern
 
@@ -120,14 +148,14 @@ pqArm_reclustering_dif <- function(input, pqArm_recluster_sim, pqArm_cluster, Cl
   new_pqArm_cluster <- NULL
   for(i in 1:nrow(pqArm_sim)){
     p <- rownames(pqArm_sim)[i]
-    more10_Row <- which (pqArm_recluster_sim[,p] == pqArm_sim[i, 1])
+    more10_Row <- which(pqArm_recluster_sim[,p] == pqArm_sim[i, 1])
     less10 <- rep(p, times = length(more10_Row))
     new_pqArm_cluster <- cbind(less10, rownames(pqArm_recluster_sim)[more10_Row]) %>%
       rbind(new_pqArm_cluster)
   }
   new_pqArm_cluster <- new_pqArm_cluster %>%
     as.data.frame() %>%
-    setNames(c("less10", "more10"))
+    stats::setNames(c("less10", "more10"))
 
   # 得到 information about which pqArm is different
   new_pqArm_PQreturn <- NULL
@@ -145,7 +173,7 @@ pqArm_reclustering_dif <- function(input, pqArm_recluster_sim, pqArm_cluster, Cl
   # which pqArm is different than change into bins-level than check how many bins are different
   # pqArm_cluster <- read.xlsx(xlsxFile = FILEpath)
   pqArm_cluster <- pqArm_cluster %>%
-    filter(cluster == Cluster)
+    dplyr::filter(.data$cluster == Cluster)
   CN_matrix <- CN_seq(input = input, Template = pqArm_cluster$cellID)
   CN_matrix$Chr_arm <- paste0(CN_bins_template$chr, CN_bins_template$arm)
 
@@ -167,23 +195,30 @@ pqArm_reclustering_dif <- function(input, pqArm_recluster_sim, pqArm_cluster, Cl
 
 
 # 4.2.1: pqArm_return.PQ() output the different pqArm between two clusters
-#' Return the different p or q arm position in chromosomes
+#' Identify differences in p/q arm positions between chromosome clusters
 #'
-#' @param pattern A table with two columns recorded paired CNV pattern.
-#' @param PQarm A vector recorded the chromosome order list.
+#' This function detects differences in the p or q arm positions of chromosomes
+#' between two clusters based on copy number variation (CNV) patterns.
 #'
-#' @return A vector stands for the different p or q arm in chromosome between two clusters.
-#' @export
+#' @param pattern A data frame with two columns representing paired CNV patterns.
+#'   Each row corresponds to a specific chromosome region comparison.
+#' @param PQarm A character vector specifying the chromosome order list.
 #'
-#' @examples
+#' @importFrom magrittr %>%
+#' @importFrom rlang .data
+#'
+#' @return A character vector indicating the chromosome arms (`p` or `q`)
+#'   that show differences between the two clusters.
+#'
+#' @keywords internal
+#'
 pqArm_return.PQ <- function(pattern, PQarm){
   pqArm_list <- PQarm
 
   Pattern_unlist <- pqArm_cluster.pattern(pattern = pattern) %>%
-    setNames(c("less10", "more10"))
+    stats::setNames(c("less10", "more10"))
 
-  pqArm_select <- which(Pattern_unlist$less10 != Pattern_unlist$more10) %>%
-    pqArm_list[.]
+  pqArm_select <- pqArm_list[which(Pattern_unlist$less10 != Pattern_unlist$more10)] %>%
 
 
   return(pqArm_select)
@@ -191,29 +226,46 @@ pqArm_return.PQ <- function(pattern, PQarm){
 
 
 # 4.2.2: pqArm_return.Bins() select different pqArm to output the region at bin-level
-#' Output the bin-level copy number sequence in different p or q arm chromosome
+#' Extract bin-level copy number sequence in differentiated chromosome arms
 #'
-#' @param Pattern A string with integers from each chromosome p and q arm copy number values combine with "_".
-#' @param which_Arm A vector stands for the different p or q arm in chromosome between two clusters.
-#' @param Tem A table recorded the clustering result and pqArm clustering result for each cell. This table recorded the clustering history in each step.
-#' @param CN_matrix A integer matrix, which column names are selected cellIDs and row names are genome ranges separated in fixed bins.
+#' This function retrieves the bin-level copy number sequence for chromosome p/q arms
+#' that show differences between two clusters.
 #'
-#' @return A numeric vector which each element stands for a mode value in each bin of a cluster of cells.
-#' @export
+#' @param Pattern A character string encoding copy number values for each chromosome p/q arm,
+#'   with values concatenated using `_`.
+#' @param which_Arm A character vector specifying the chromosome arms (`p` or `q`)
+#'   that differ between the two clusters.
+#' @param Tem A data frame recording the clustering history for each cell, including
+#'   overall clustering results and p/q arm-specific clustering assignments.
+#' @param CN_matrix An integer matrix where:
+#'   - Columns represent the `cellID`s of the specific cells.
+#'   - Rows represent genomic regions, divided into fixed bins.
 #'
-#' @examples
+#' @importFrom magrittr %>%
+#' @importFrom rlang .data
+#'
+#' @return A numeric vector where each element represents the mode copy number value
+#'   for a given bin within a cluster of cells.
+#'
+#' @keywords internal
+#'
 pqArm_return.Bins <- function(Pattern, which_Arm, Tem, CN_matrix){
   ID <- Tem %>%
-    filter(pqArm_pattern %in% c(Pattern)) %>%
-    pull(cellID)
+    dplyr::filter(.data$pqArm_pattern %in% c(Pattern)) %>%
+    dplyr::pull(.data$cellID)
+
+  if (length(ID) == 0) {
+    stop("No matching cellID found in copy number matrix.")
+  }
 
   CNmatrix <- CN_matrix %>%
-    filter(Chr_arm %in% which_Arm) %>%
-    subset(., select = c(ID))
-  CNmatrix <- pqArm_DelNeuAmp(matrix = CNmatrix) #只看Del/Neu/Amp
+    dplyr::filter(.data$Chr_arm %in% which_Arm) %>%
+    dplyr::select(dplyr::all_of(ID))  # 確保 ID 為存在的列名
 
-  CN_bins <- sapply(1:nrow(CNmatrix), function(x) {
-    freq <- table(as.integer(CNmatrix[x, ]))
+  CNmatrix <- pqArm_DelNeuAmp(matrix = CNmatrix)  # 只看 Del/Neu/Amp
+
+  CN_bins <- apply(CNmatrix, 1, function(x) {
+    freq <- table(as.integer(x))
     sorted_freq <- sort(freq, decreasing = TRUE)
     first_element <- as.integer(names(sorted_freq)[1])
     return(first_element)
@@ -225,44 +277,50 @@ pqArm_return.Bins <- function(Pattern, which_Arm, Tem, CN_matrix){
 
 
 # 4.3: pqArm_reclusterBy_ratio_target() filter ratio and merge the clusters if criteria meets
-#' Check pqArm clusters meet the criteria of different ratio in the different chromosome
+#' Validate pqArm clusters based on difference ratio criteria
 #'
-#' @param pqArm_cluster A table recorded the clustering result and pqArm clustering result for each cell. This table recorded the clustering history in each step.
-#' @param Cluster An integer for the specific cluster to calculate.
-#' @param pqReclsut_sim A table with columns between whole cluster and each different ratio at bin-level.
-#' Returns the ratio of bin-level differences between each cluster and its most similar cluster in each differing p or q arm.
-#' @param difratio_chr A numeric value set for criteria of different ratio in the different chromosome.
+#' This function evaluates whether pqArm clusters meet a predefined difference ratio criterion across different chromosomes.
 #'
-#' @return A list stored characters stands for clusters to be grouped together.
-#' @export
+#' @param pqArm_cluster A data frame recording the pqArm-specific clustering results for each cell.
+#'   This table tracks the clustering history at each step.
+#' @param Cluster An integer specifying the cluster to analyze.
+#' @param pqReclsut_sim A data frame containing the similarity scores between the entire cluster and each different ratio at the bin level.
+#'   It returns the bin-level difference ratio between each cluster and its most similar cluster for each differing p or q arm.
+#' @param difratio_chr A numeric value defining the threshold for acceptable difference ratios across different chromosomes.
 #'
-#' @examples
+#' @importFrom magrittr %>%
+#' @importFrom rlang .data
+#'
+#' @return A list containing character vectors representing clusters that should be grouped together.
+#'
+#' @keywords internal
+#'
 pqArm_reclusterBy_ratio_target <- function(pqArm_cluster, Cluster, pqReclsut_sim, difratio_chr){
   # pqArm_cluster <- read.xlsx(xlsxFile = FILEpath)
   pqArm_cluster <- pqArm_cluster %>%
-    filter(cluster %in% Cluster)
+    dplyr::filter(.data$cluster %in% Cluster)
 
   Chioce <- pqReclsut_sim %>%
-    group_by(less10) %>%
-    mutate(less10_times = n(),
-           merge_pattern = paste0(less10, "_", more10))
+    dplyr::group_by(.data$less10) %>%
+    dplyr::mutate(less10_times = dplyr::n(),
+                  merge_pattern = paste0(.data$less10, "_", .data$more10))
   cellnum <- pqArm_cluster %>%
-    select(pqArm_pattern, pqArm_pattern_cellnum) %>%
-    filter(pqArm_pattern %in% c(Chioce$more10)) %>%
-    distinct(pqArm_pattern, .keep_all = TRUE) %>%
-    setNames(c("more10", "more10_cellnum"))
+    dplyr::select(.data$pqArm_pattern, .data$pqArm_pattern_cellnum) %>%
+    dplyr::filter(.data$pqArm_pattern %in% c(Chioce$more10)) %>%
+    dplyr::distinct(.data$pqArm_pattern, .keep_all = TRUE) %>%
+    stats::setNames(c("more10", "more10_cellnum"))
   Chioce <- merge(Chioce, cellnum, by = "more10")
 
 
   # 多個region 不同的要都符合才能留下
   for (pattern in unique(Chioce$merge_pattern)){
     Selected <- Chioce %>%
-      filter(merge_pattern %in% c(pattern),
-             dif_ratio > difratio_chr)
+      dplyr::filter(.data$merge_pattern %in% c(pattern),
+                    .data$dif_ratio > difratio_chr)
 
     if(nrow(Selected)>0){
       Chioce <- Chioce %>%
-        filter(!merge_pattern %in% c(pattern))
+        dplyr::filter(!.data$merge_pattern %in% c(pattern))
     } else {
       Chioce <- Chioce
     }
@@ -273,11 +331,11 @@ pqArm_reclusterBy_ratio_target <- function(pqArm_cluster, Cluster, pqReclsut_sim
   #pattern = unique(Chioce$less10)[3]
   for (pattern in unique(Chioce$less10)){
     Selected <- Chioce %>%
-      select(less10, more10, PQreturn, dif_num, dif_ratio, more10_cellnum) %>%
-      filter(less10 %in% c(pattern))
+      dplyr::select(.data$less10, .data$more10, .data$PQreturn, .data$dif_num, .data$dif_ratio, .data$more10_cellnum) %>%
+      dplyr::filter(.data$less10 %in% c(pattern))
     if(length(unique(Selected$more10))>1){
       Selected <- Selected %>%
-        filter(dif_ratio == min(Selected$dif_ratio))
+        dplyr::filter(.data$dif_ratio == min(Selected$dif_ratio))
       Chioce_Result <- Chioce_Result %>%
         rbind(Selected)
     } else{
@@ -291,38 +349,38 @@ pqArm_reclusterBy_ratio_target <- function(pqArm_cluster, Cluster, pqReclsut_sim
   } else {
     # 處理merge到的對象是cellnum<10的情況，因為這些群會同時出現在左邊與右邊
     more10_pattern_list <- Chioce_Result %>%
-      filter(more10_cellnum<10) %>%
-      arrange(desc(more10_cellnum)) %>%
-      pull(more10)
+      dplyr::filter(.data$more10_cellnum<10) %>%
+      dplyr::arrange(dplyr::desc(.data$more10_cellnum)) %>%
+      dplyr::pull(.data$more10)
     new_Chioceless10 <- NULL
     while (length(more10_pattern_list)>0){
       pattern =  more10_pattern_list[1]
       check_pattern <- Chioce_Result %>%
-        filter(less10 == pattern | more10 == pattern)
+        dplyr::filter(.data$less10 == pattern | .data$more10 == pattern)
       cellnum_list <- check_pattern %>%
-        filter(more10_cellnum > 10)
+        dplyr::filter(.data$more10_cellnum > 10)
 
       if (nrow(cellnum_list) > 0){
-        new_pattern <- cellnum_list %>% pull(more10)
+        new_pattern <- cellnum_list %>% dplyr::pull(.data$more10)
         new_Chioceless10 <- Chioce_Result %>%
-          filter(less10 == pattern | more10 == pattern) %>%
-          mutate(more10 = new_pattern) %>%
+          dplyr::filter(.data$less10 == pattern | .data$more10 == pattern) %>%
+          dplyr::mutate(more10 = new_pattern) %>%
           rbind(new_Chioceless10)
       } else {
         new_Chioceless10 <- Chioce_Result %>%
-          filter(less10 == pattern | more10 == pattern) %>%
-          mutate(more10 = pattern) %>%
+          dplyr::filter(.data$less10 == pattern | .data$more10 == pattern) %>%
+          dplyr::mutate(more10 = pattern) %>%
           rbind(new_Chioceless10)
       }
       rm_pattern <- unlist(unique(new_Chioceless10$less10))
-      intersection <- intersect(more10_pattern_list, rm_pattern)
-      more10_pattern_list <- setdiff(more10_pattern_list, intersection)
+      intersection <- dplyr::intersect(more10_pattern_list, rm_pattern)
+      more10_pattern_list <- dplyr::setdiff(more10_pattern_list, intersection)
 
     }
 
     # 先將重新編輯過分群目的的細胞群移除，再併入最終的分群結果中
     Chioce_Result <- Chioce_Result %>%
-      filter(!less10 %in% c(new_Chioceless10$less10)) %>%
+      dplyr::filter(!.data$less10 %in% c(new_Chioceless10$less10)) %>%
       rbind(new_Chioceless10)
 
     return(Chioce_Result)
@@ -331,50 +389,70 @@ pqArm_reclusterBy_ratio_target <- function(pqArm_cluster, Cluster, pqReclsut_sim
 
 
 # 4.4: pqArm_recluster_result() reset the content in pqArmCluster_CellID.xlsx and merge final result
-#' Output final results of Re-clustering step
+#' Generate final results of the Re-Clustering step
 #'
-#' @param pqArm_cluster A table recorded the clustering result and pqArm clustering result for each cell. This table recorded the clustering history in each step.
-#' @param Cluster An integer for the specific cluster to calculate.
-#' @param pqReclsut_target A list stored characters stands for clusters to be grouped together.
+#' This function updates the clustering results by incorporating the re-clustering step,
+#' refining the pqArm-based clustering assignments.
 #'
-#' @return A table recorded result of clustering, pqArm clustering and Reclustering steps for each cell. Table 'pqArm_cluster' will be updated.
-#' @export
+#' @param pqArm_cluster A data frame recording the pqArm-specific clustering results for each cell.
+#'   This table tracks the clustering history at each step.
+#' @param Cluster An integer specifying the cluster to be updated in the re-clustering process.
+#' @param pqReclsut_target A list containing character vectors representing clusters that should be grouped together.
 #'
-#' @examples
+#' @importFrom magrittr %>%
+#' @importFrom rlang .data
+#'
+#' @return A data frame containing updated clustering results, including:
+#'   - `cluster`: The original clustering assignments.
+#'   - `pq_cluster`: The pqArm-based clustering assignments.
+#'   - `recluster`: The updated clustering result after the re-clustering step.
+#'
+#' @keywords internal
+#'
 pqArm_recluster_result <- function(pqArm_cluster, Cluster, pqReclsut_target){
   # pqArm_cluster <- read.xlsx(xlsxFile = FILEpath)
   pqArm_cluster = pqArm_cluster %>%
-    filter(cluster %in% Cluster)
+    dplyr::filter(.data$cluster %in% Cluster)
 
-  pqArm_cluster <- left_join(pqArm_cluster, pqReclsut_target, by = c("pqArm_pattern" = "less10")) %>%
-    select(!more10_cellnum) %>%
+  pqArm_cluster <- dplyr::left_join(pqArm_cluster, pqReclsut_target, by = c("pqArm_pattern" = "less10")) %>%
+    dplyr::select(!.data$more10_cellnum) %>%
     dplyr::rename("Recluster_pattern" = "more10" )
   pqArm_cluster$Recluster_pattern <- ifelse(is.na(pqArm_cluster$Recluster_pattern) == TRUE, pqArm_cluster$pqArm_pattern, pqArm_cluster$Recluster_pattern)
   Recluster_summary <- pqArm_reclustering_summary(Data = pqArm_cluster$Recluster_pattern)
-  pqArm_cluster <- left_join(pqArm_cluster, Recluster_summary , by = "Recluster_pattern") %>%
-    arrange(desc(Recluster_cellnum)) %>%
-    select(cellID, cluster, pqArm_pattern, pqArm_pattern_cellnum, pqArm_cluster, Recluster_pattern, Recluster_cellnum, Recluster_cluster, PQreturn, dif_num, dif_ratio)
+  pqArm_cluster <- dplyr::left_join(pqArm_cluster, Recluster_summary , by = "Recluster_pattern") %>%
+    dplyr::arrange(dplyr::desc(.data$Recluster_cellnum)) %>%
+    dplyr::select(.data$cellID, .data$cluster, .data$pqArm_pattern, .data$pqArm_pattern_cellnum, .data$pqArm_cluster,
+                  .data$Recluster_pattern, .data$Recluster_cellnum, .data$Recluster_cluster, .data$PQreturn, .data$dif_num, .data$dif_ratio)
 
   return(pqArm_cluster)
 }
 
 
 # 4.4.1: pqArm_reclustering_summary() create pqArm clustering final results
-#' Output summary of reclustering results
+#' Summarize the results of the Re-Clustering step
 #'
-#' @param Data A table recorded the clustering result and pqArm clustering result for each cell. This table recorded the clustering history in each step.
+#' This function generates a summary table of the re-clustering process,
+#' providing an overview of the reclustered patterns, cell counts, and assigned clusters.
 #'
-#' @return A table with columns "Recluster_pattern", "Recluster_cellnum", and "Recluster_cluster" to summarize the result of reclustering step.
-#' @export
+#' @param Data A data frame recording the clustering results and pqArm-specific clustering results for each cell.
+#'   This table tracks the clustering history at each step.
 #'
-#' @examples
+#' @importFrom magrittr %>%
+#' @importFrom rlang .data
+#'
+#' @return A data frame summarizing the re-clustering step with the following columns:
+#'   - `Recluster_pattern`: The identified re-clustering patterns.
+#'   - `Recluster_cellnum`: The number of cells assigned to each pattern.
+#'   - `Recluster_cluster`: The final cluster assignment after re-clustering.
+#'
+#' @keywords internal
+#'
 pqArm_reclustering_summary <- function(Data){
   cluster_table <- table(Data) %>%
     as.data.frame() %>%
-    arrange(desc(Freq)) %>%
-    mutate(Recluster_cluster = c(1:nrow(.))) %>%
-    # filter(Freq > 1) %>%
-    setNames(c("Recluster_pattern", "Recluster_cellnum", "Recluster_cluster"))
+    dplyr::arrange(dplyr::desc(.data$Freq)) %>%
+    dplyr::mutate(Recluster_cluster = seq_len(nrow(.))) %>%
+    stats::setNames(c("Recluster_pattern", "Recluster_cellnum", "Recluster_cluster"))
 
   return(cluster_table)
 }

@@ -1,16 +1,27 @@
 ##### 01: Input
 # 1.0: changeFormat() read .rds to change as GRanges format
-#' Change .rds copy number data as GRanges format
+#' Convert copy number data from .rds to GRanges Format
 #'
-#' @param file A table with column names: "cellID", "seqnames", "start", "end", and "copy.number" in .rds format.
-#' @param cores A integer. parallel execution in number of cores, default=1.
+#' This function reads a `.rds` file containing copy number variation (CNV) data
+#' and converts it into a list of `GRanges` objects, where each element corresponds to a single cell.
 #'
-#' @return a list with each cell in GRanges object.
+#' @param file A `.rds` file containing a data frame with the following required columns:
+#'   - `cellID`: Unique identifier for each cell.
+#'   - `seqnames`: Chromosome or sequence name.
+#'   - `start`: Start position of the segment.
+#'   - `end`: End position of the segment.
+#'   - `copy.number`: Copy number value for the segment.
+#' @param cores An integer specifying the number of CPU cores to use for parallel processing, default=1.
+#'
+#' @return A named list where each element represents a cell, containing its corresponding genomic segments as a `GRanges` object.
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 #' Example_data <- changeFormat(file = file_path, core = 4)
+#' CNmatrix <- CN_seq(input = Example_data, Template = names(Example_data)[1:10])
+#' }
 #'
 changeFormat <- function(file, cores) {
   ptm <- startTimed("Read RDS file...")
@@ -69,18 +80,25 @@ changeFormat <- function(file, cores) {
 
 
 # 1.1: get the copy number matrix
-#' Gather copy number matrix in selected cells
+#' Generate copy number matrix for selected cells
 #'
-#' @param input A list with each cell in GRanges object.
-#' @param Template A list of selected cells.
+#' This function extracts copy number variations from a list of `GRanges` objects
+#' and organizes them into an integer matrix. The matrix contains selected cells as columns,
+#' with genomic regions (fixed bins) as rows.
 #'
-#' @return A integer matrix, which column names are selected cellIDs and row names are genome ranges separated in fixed bins.
-#' @export
+#' @param input A named list where each element represents a single cell as a `GRanges` object.
+#' @param Template A character vector containing the `cellID`s of selected cells to be included in the matrix.
+#'
+#' @return An integer matrix:
+#'   - Columns represent the selected `cellID`s.
+#'   - Rows represent genomic regions, separated into fixed bins.
 #'
 #' @examples
+#' \dontrun{
 #' file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 #' Example_data <- changeFormat(file = file_path, core = 4)
 #' CNmatrix <- CN_seq(input = Example_data, Template = names(Example_data)[1:10])
+#' }
 #'
 CN_seq <- function(input, Template){
     c <- list()

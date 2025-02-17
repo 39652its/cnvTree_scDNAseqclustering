@@ -2,18 +2,24 @@
 % Please edit documentation in R/scDNAclustering_02_Clustering.R
 \name{CutTree_final}
 \alias{CutTree_final}
-\title{Calculate phylogenetic tree results}
+\title{Construct a phylogenetic tree from copy number variation data}
 \usage{
 CutTree_final(input, selected)
 }
 \arguments{
-\item{input}{A list of cells in GRanges-format object.}
+\item{input}{A named list where each element is a \code{GRanges} object representing a single cell.}
 
-\item{selected}{A list of cell IDs for cell clustering.}
+\item{selected}{A character vector specifying the \code{cellID}s of the cells to be included in the phylogenetic analysis.}
 }
 \value{
-A table recorded cell IDs and number of cluster(k=2).
+A data frame with two columns:
+\itemize{
+\item \code{cellID}: The unique identifier of each cell.
+\item \code{cluster}: The assigned cluster label (k = 2).
+}
 }
 \description{
-Calculate phylogenetic tree results
+This function performs hierarchical clustering on selected cells based on their copy number variations
+and derives a phylogenetic tree structure.
 }
+\keyword{internal}

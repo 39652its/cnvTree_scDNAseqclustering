@@ -1,19 +1,27 @@
 # 3.1: CN_template() build the CN_seq template, stands the range for each row in CN_seq
-#' Build the template for copy number segment template
+#' Generate a copy number segment template based on chromosomal arms
 #'
-#' @param input A list of cells in GRanges-format object.
+#' This function constructs a template for copy number segmentation
+#' using cytoband information from Giemsa-stained chromosomes.
+#'
+#' @param input A named list where each element is a `GRanges` object representing a single cell.
 #' @param pqArm_file A table for cytoband information seen on Giemsa-stained chromosomes.
+#' It should include the following columns:
+#'   - `chrom"`: Reference sequence chromosome or scaffold.
+#'   - `chromStart`: Start position in genoSeq.
+#'   - `chromEnd`: End position in genoSeq.
+#'   - `name`: Name of cytogenetic band.
+#'   - `gieStain`: Giemsa stain results.
 #'
-#' @return A table recorded ranges of p/q arm on each chromosome.
 #' @importFrom magrittr %>%
 #' @importFrom rlang .data
-#' @export
 #'
-#' @examples
+#' @return A data frame containing the defined genomic ranges for p/q arms across all chromosomes.
+#' @keywords internal
 #'
 CN_template <- function(input, pqArm_file){
   CN_tem <- data.frame(GenomicRanges::seqnames(input[[1]]$bins), IRanges::ranges(input[[1]]$bins))
-  CN_tem <- CN_tem %>% dplyr::setNames(c("chr", "start", "end", "width"))
+  CN_tem <- CN_tem %>% stats::setNames(c("chr", "start", "end", "width"))
 
   # Add p/q arm information on the template
   # 非p及q
@@ -41,17 +49,24 @@ CN_template <- function(input, pqArm_file){
 
 
 # 3.1.1: pqArm_file.remake() remake file format from UCSC
-#' Remake the cytoband information from UCSC database for "acen" and "gvar" cytoband types to specific format
+#' Extract chromosome arm ranges from UCSC cytoband data
 #'
-#' @param FILE A directory direct to UCSC cytoband file.
+#' This function processes a UCSC cytoband file to extract the ranges of chromosome long
+#' and short arms, excluding the centromere regions.
 #'
-#' @return A table labeled ranges of "acen" and "gvar" cytoband types for further masking ranges to exclude the CNVs from experiments.
-#' @export
+#' @param FILE A character string specifying the file path to the UCSC cytoband file.
 #'
-#' @examples
+#' @importFrom magrittr %>%
+#' @importFrom rlang .data
+#'
+#' @return A table containing the ranges of chromosomal arms, excluding centromeric regions.
+#'   It includes cytobands of type `acen` and `gvar`, along with the ranges of the preceding and following cytobands.
+#'
+#' @keywords internal
+#'
 pqArm_file.remake <- function(FILE){
   x <- utils::read.table(gzfile(FILE),sep="\t", col.names = c("chr", "start", "end", "name","gieStain"))
-  x <- x %>% dplyr::filter(!grepl("_", chr))
+  x <- x %>% dplyr::filter(!grepl("_", .data$chr))
 
   # set chr levels
   vec <- unique(x$chr)
@@ -61,61 +76,126 @@ pqArm_file.remake <- function(FILE){
 
 
   x <- x %>%
-    dplyr::mutate(chr = factor(chr, levels = Levels),
-                  start = start + 1,
-                  arm  = substring(name, 1, 1),
-                  arm_category = paste0(chr, arm))
+    dplyr::mutate(chr = factor(.data$chr, levels = Levels),
+                  start = .data$start + 1,
+                  arm  = substring(.data$name, 1, 1),
+                  arm_category = paste0(.data$chr, .data$arm))
   Sum_x <- x %>%
-    dplyr::group_by(arm_category) %>%
+    dplyr::group_by(.data$arm_category) %>%
     dplyr::slice_head(n = 1) %>%
     as.data.frame()
   Sum_x <- x %>%
-    dplyr::group_by(arm_category) %>%
+    dplyr::group_by(.data$arm_category) %>%
     dplyr::slice_tail(n = 1) %>%
     as.data.frame() %>%
     rbind(Sum_x) %>%
-    dplyr::arrange(chr = factor(chr, levels = Levels), start)
+    dplyr::arrange(chr = factor(.data$chr, levels = Levels), .data$start)
 
   return(Sum_x)
 }
 
 
 # 3.1.2: pqArm_file.pq() remake pqarm template into new format
-#' Remake the cytoband information from UCSC database for arm-level ranges to specific format
+#' Convert UCSC cytoband data to arm-level chromosomal ranges
 #'
-#' @param Template A directory direct to UCSC cytoband file.
+#' This function processes cytoband information from the UCSC database and
+#' reformats it into a structured table containing p/q arm regions for each chromosome.
+#' The output is designed for downstream copy number variation (CNV) analysis.
 #'
-#' @return A table labeled ranges of p/q arm regions in each chromosome for further CNVs calculation.
-#' @export
+#' @param Template A character string specifying the file path to the UCSC cytoband data.
 #'
-#' @examples
+#' @importFrom magrittr %>%
+#' @importFrom rlang .data
+#'
+#' @return A data frame with labeled chromosomal p/q arm regions, formatted for CNV analysis.
+#'
+#' @keywords internal
+#'
 pqArm_file.pq <- function(Template){
   x <- Template %>%
-    dplyr::setNames(c("chr", "ChromStart", "ChromEnd", "name", "gieStain", "arm", "arm_category")) %>%
-    dplyr::group_by(arm_category) %>%
-    dplyr::summarise(start = min(ChromStart),
-                     end = max(ChromEnd))
+    stats::setNames(c("chr", "ChromStart", "ChromEnd", "name", "gieStain", "arm", "arm_category")) %>%
+    dplyr::group_by(.data$arm_category) %>%
+    dplyr::summarise(start = min(.data$ChromStart),
+                     end = max(.data$ChromEnd))
   x <- x %>%
-    dplyr::mutate(arm = stringr::str_sub(arm_category, -1),
-                  chr = stringr::str_sub(arm_category, end = -2)) %>%
+    dplyr::mutate(arm = stringr::str_sub(.data$arm_category, -1),
+                  chr = stringr::str_sub(.data$arm_category, end = -2)) %>%
     dplyr::select(c("chr", "start", "end", "arm"))
+
+  return(x)
+}
+
+# 3.1.3: pqArm_file.cen() remake centromere template into new format (X)
+#' Process UCSC cytoband data for "acen" and "gvar" regions
+#'
+#' This function extracts and formats cytoband information from the UCSC database,
+#' specifically for the "acen" (centromeric) and "gvar" (variable heterochromatic)
+#' cytoband types. The output is structured for defining masking ranges
+#' to exclude copy number variations (CNVs) from downstream analyses.
+#'
+#' @param FILE A character string specifying the file path to the UCSC cytoband data file.
+#'
+#' @importFrom magrittr %>%
+#' @importFrom rlang .data
+#'
+#' @return A data frame containing labeled genomic ranges for "acen" and "gvar" cytoband
+#' regions, which can be used for masking CNVs in experimental analyses.
+#'
+#' @keywords internal
+pqArm_file.cen <- function(FILE){
+  x <- utils::read.table(gzfile(FILE),sep="\t", col.names = c("chr", "ChromStart", "ChromEnd", "name","gieStain"))
+  x <- x %>% dplyr::filter(!grepl("_", .data$chr))
+
+  # set chr levels
+  vec <- unique(x$chr)
+  nums <- as.numeric(gsub("chr", "", vec)[grepl("\\d", vec)])
+  nums <- paste0("chr", nums[order(nums)])
+  Levels <- c(nums, vec[!grepl("\\d", vec)])
+
+  x <- x %>%
+    dplyr::mutate(cen_category = paste0(.data$chr, .data$gieStain)) %>%
+    dplyr::group_by(.data$cen_category) %>%
+    dplyr::summarise(Start = min(.data$ChromStart),
+                     End  = max(.data$ChromEnd)) %>%
+    as.data.frame()
+
+  x <- x %>%
+    dplyr::filter(.data$cen_category %in% paste0(rep(Levels,each = 2), c("acen","gvar"))) %>%
+    dplyr::mutate(cen = stringr::str_sub(.data$cen_category, -4),
+                  chr = stringr::str_sub(.data$cen_category, end = -5)) %>%
+    dplyr::group_by(.data$chr) %>%
+    dplyr::summarise(MaskStart = min(.data$Start),
+                     MaskEnd  = max(.data$End)) %>%
+    dplyr::arrange(chr = factor(.data$chr, levels = Levels), .data$MaskStart) %>%
+    dplyr::select(c("chr", "MaskStart", "MaskEnd"))
 
   return(x)
 }
 
 
 # 3.2: pqArm_CN() transform CN matrix to Del/Neu/Amp and based on Arm level to smooth the CN
-#' Smooth copy number matrix based on arm-level ranges
+#' Smooth copy number matrix using arm-level ranges
 #'
-#' @param input A list of cells in GRanges-format object.
-#' @param Cluster_label A integer for the specific cluster to calculate.
-#' @param Clustering_output A table recorded the clustering result for each cell. This table recorded the clustering history in each step.
-#' @param pqArm_file A table for cytoband information seen on Giemsa-stained chromosomes.
+#' This function processes single-cell copy number data by smoothing
+#' copy number variations (CNVs) at the arm level. It utilizes clustering results
+#' and cytoband information to assign copy number states (Deletion, Neutral, or Amplification)
+#' for each chromosomal arm.
 #'
-#' @return A matrix in three copy number types (Deletion/Neutral/Amplification) based on arm-level ranges.
-#' @export
+#' @param input A named list where each element is a `GRanges` object representing a single cell.
+#' @param Cluster_label An integer specifying the cluster for which the copy number smoothing is performed.
+#' @param Clustering_output A data frame recording the clustering results for each cell,
+#' including the clustering history at each step.
+#' @param pqArm_file A data frame containing cytoband information, representing p/q arm-level
+#' chromosome regions based on Giemsa-stained cytogenetic data.
 #'
-#' @examples
+#' @importFrom magrittr %>%
+#' @importFrom rlang .data
+#'
+#' @return A matrix with smoothed copy number states (Deletion, Neutral, or Amplification)
+#' at the arm level across chromosomes.
+#'
+#' @keywords internal
+#'
 pqArm_CN <- function(input, Cluster_label, Clustering_output, pqArm_file){
   selected_files <- subset(Clustering_output, Clustering_output$cluster%in%c(Cluster_label))
 
@@ -124,7 +204,7 @@ pqArm_CN <- function(input, Cluster_label, Clustering_output, pqArm_file){
   CN_matrix <- pqArm_DelNeuAmp(matrix = CN_matrix)  # Transform CN to 1, 2, 3
 
   CN_binsLevel <- CN_matrix_temp %>%
-    dplyr::group_by(chr, arm) %>%
+    dplyr::group_by(.data$chr, .data$arm) %>%
     dplyr::summarise(Freq = dplyr::n(), .groups = "drop") %>%
     as.data.frame()
   CN_binsLevel$start <- sapply(1:nrow(CN_binsLevel), function(x){
@@ -140,8 +220,8 @@ pqArm_CN <- function(input, Cluster_label, Clustering_output, pqArm_file){
     pq_CN <- sapply(1:ncol(pq_CNmatrix), function(x){
       freq <- table(pq_CNmatrix[ , x]) %>%
         as.data.frame() %>%
-        dplyr::arrange(dplyr::desc(Freq)) %>%
-        dplyr::pull(Var1) %>%
+        dplyr::arrange(dplyr::desc(.data$Freq)) %>%
+        dplyr::pull(.data$Var1) %>%
         as.character() %>%
         as.integer()
       freq[1]
@@ -153,7 +233,7 @@ pqArm_CN <- function(input, Cluster_label, Clustering_output, pqArm_file){
 
   Smooth_pqCN <- Smooth_pqCN %>%
     as.data.frame() %>%
-    dplyr::setNames(c(colnames(CN_matrix))) %>%
+    stats::setNames(c(colnames(CN_matrix))) %>%
     `rownames<-`(paste0(rep(levels(CN_matrix_temp$chr), each = 2), rep(c("p", "q"), 11)))
 
   return(Smooth_pqCN)
@@ -161,14 +241,22 @@ pqArm_CN <- function(input, Cluster_label, Clustering_output, pqArm_file){
 
 
 # 3.2.1: pqArm_DelNeuAmp() transform CN matrix to Del/Neu/Amp three types
-#' Based on copy number to separate in three types
+#' Categorize copy number variations into three types
 #'
-#' @param matrix An integer matrix which columns are cells and rows are fixed-bin size region in whole chromosomes.
+#' This function classifies copy number variations (CNVs) into three discrete categories:
+#' Deletion (CN < 2), Neutral (CN = 2), and Amplification (CN > 2).
+#' The input matrix represents copy number data across genomic regions for multiple cells.
 #'
-#' @return A integer matrix only with 0, 1, 2 stands for Deletion(CN<2), Neutral(CN=2), and Amplification(CN>2).
-#' @export
+#' @param matrix An integer matrix where columns represent individual cells, and rows correspond
+#' to fixed-bin size genomic regions across all chromosomes.
 #'
-#' @examples
+#' @return An integer matrix containing only values 0, 1, and 2, representing:
+#'   - `0`: Deletion (CN < 2)
+#'   - `1`: Neutral (CN = 2)
+#'   - `2`: Amplification (CN > 2)
+#'
+#' @keywords internal
+#'
 pqArm_DelNeuAmp <- function(matrix){
   new_matrix <- base::matrix(0, nrow(matrix), ncol(matrix))
 
@@ -184,48 +272,67 @@ pqArm_DelNeuAmp <- function(matrix){
 
 
 # 3.3: pqArm_clustering() merge each row as vector to seperate the clsuters
-#' Based on arm-level copy number pattern to cluster the cells
+#' Cluster cells based on arm-level copy number patterns
 #'
-#' @param matrix An integer matrix which columns are cells and rows are arm-level in each chromosome.
-#' @param Label An integer for the specific cluster to calculate in arm-level result.
+#' This function performs clustering on cells using arm-level copy number variations (CNVs).
+#' It groups cells into clusters based on chromosomal arm-level CNV profiles, providing
+#' a hierarchical clustering history at each step.
+#'
+#' @param matrix An integer matrix where columns represent individual cells, and rows correspond
+#' to arm-level copy number regions across chromosomes.
+#' @param Label An integer specifying the cluster to compute in the arm-level CNV analysis.
+#'
+#' @return A data frame recording the clustering results for each cell, including
+#' the clustering history at each step.
 #'
 #' @return A table recorded the clustering result for each cell. This table recorded the clustering history in each step.
-#' @export
+#' @keywords internal
 #'
-#' @examples
 pqArm_clustering <- function(matrix, Label){
   cluster <- sapply(1:ncol(matrix), function(x){
     paste(matrix[ , x], collapse = "_")
   })
 
-  cluster <- cluster %>%
-    as.data.frame() %>%
-    tibble::tibble(pqArm_pattern = ., cellID = colnames(matrix)) %>%
-    dplyr::mutate(cluster = Label)
-
+  cluster <- tibble::tibble(
+    pqArm_pattern = cluster,
+    cellID = colnames(matrix),
+    cluster = Label
+  )
 
   return(cluster)
 }
 
 
 # 3.4: pqArm_clustering_summary() return pqArm clustering output
-#' Return summary of pqArm clustering step result
+#' Summarize pqArm clustering step results
 #'
-#' @param matrix A table recorded the clustering result for each cell. This table recorded the clustering history in each step.
-#' @param Label An integer for the specific cluster to calculate in arm-level result.
+#' This function provides a summary of the pqArm clustering process,
+#' detailing the distribution of arm-level copy number variation (CNV) patterns
+#' across different clusters.
 #'
-#' @return A table with columns "pqArm_pattern", "pqArm_pattern_cellnum", "cluster", and "pqArm_cluster" as summary of pqArm clustering step.
-#' @export
+#' @param matrix A data frame recording the clustering results for each cell,
+#' including the clustering history at each step.
+#' @param Label An integer specifying the cluster to compute in the arm-level CNV analysis.
 #'
-#' @examples
+#' @importFrom magrittr %>%
+#' @importFrom rlang .data
+#'
+#' @return A data frame summarizing the pqArm clustering step, containing the following columns:
+#'   - `pqArm_pattern`: The identified copy number patterns at the arm level.
+#'   - `pqArm_pattern_cellnum`: The number of cells associated with each pqArm pattern.
+#'   - `cluster`: The assigned cluster for each pattern.
+#'   - `pqArm_cluster`: The final cluster grouping based on pqArm patterns.
+#'
+#' @keywords internal
+#'
 pqArm_clustering_summary <- function(matrix, Label){
   cluster_table <- table(matrix$pqArm_pattern) %>%
     as.data.frame() %>%
-    dplyr::arrange(dplyr::desc(Freq)) %>%
+    dplyr::arrange(dplyr::desc(.data$Freq)) %>%
     dplyr::mutate(cluster = Label,
-                  pqArm_cluster = c(1:nrow(.))) %>%
+                  pqArm_cluster = seq_len(nrow(.))) %>%
     # filter(Freq > 1) %>%
-    dplyr::setNames(c("pqArm_pattern", "pqArm_pattern_cellnum", "cluster", "pqArm_cluster"))
+    stats::setNames(c("pqArm_pattern", "pqArm_pattern_cellnum", "cluster", "pqArm_cluster"))
 
   return(cluster_table)
 }

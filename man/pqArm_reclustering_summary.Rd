@@ -2,16 +2,24 @@
 % Please edit documentation in R/scDNAclustering_04_ReClustering.R
 \name{pqArm_reclustering_summary}
 \alias{pqArm_reclustering_summary}
-\title{Output summary of reclustering results}
+\title{Summarize the results of the Re-Clustering step}
 \usage{
 pqArm_reclustering_summary(Data)
 }
 \arguments{
-\item{Data}{A table recorded the clustering result and pqArm clustering result for each cell. This table recorded the clustering history in each step.}
+\item{Data}{A data frame recording the clustering results and pqArm-specific clustering results for each cell.
+This table tracks the clustering history at each step.}
 }
 \value{
-A table with columns "Recluster_pattern", "Recluster_cellnum", and "Recluster_cluster" to summarize the result of reclustering step.
+A data frame summarizing the re-clustering step with the following columns:
+\itemize{
+\item \code{Recluster_pattern}: The identified re-clustering patterns.
+\item \code{Recluster_cellnum}: The number of cells assigned to each pattern.
+\item \code{Recluster_cluster}: The final cluster assignment after re-clustering.
+}
 }
 \description{
-Output summary of reclustering results
+This function generates a summary table of the re-clustering process,
+providing an overview of the reclustered patterns, cell counts, and assigned clusters.
 }
+\keyword{internal}

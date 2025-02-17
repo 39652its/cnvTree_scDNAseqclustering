@@ -2,18 +2,28 @@
 % Please edit documentation in R/scDNAclustering_03_pqArmClustering.R
 \name{pqArm_clustering_summary}
 \alias{pqArm_clustering_summary}
-\title{Return summary of pqArm clustering step result}
+\title{Summarize pqArm clustering step results}
 \usage{
 pqArm_clustering_summary(matrix, Label)
 }
 \arguments{
-\item{matrix}{A table recorded the clustering result for each cell. This table recorded the clustering history in each step.}
+\item{matrix}{A data frame recording the clustering results for each cell,
+including the clustering history at each step.}
 
-\item{Label}{An integer for the specific cluster to calculate in arm-level result.}
+\item{Label}{An integer specifying the cluster to compute in the arm-level CNV analysis.}
 }
 \value{
-A table with columns "pqArm_pattern", "pqArm_pattern_cellnum", "cluster", and "pqArm_cluster" as summary of pqArm clustering step.
+A data frame summarizing the pqArm clustering step, containing the following columns:
+\itemize{
+\item \code{pqArm_pattern}: The identified copy number patterns at the arm level.
+\item \code{pqArm_pattern_cellnum}: The number of cells associated with each pqArm pattern.
+\item \code{cluster}: The assigned cluster for each pattern.
+\item \code{pqArm_cluster}: The final cluster grouping based on pqArm patterns.
+}
 }
 \description{
-Return summary of pqArm clustering step result
+This function provides a summary of the pqArm clustering process,
+detailing the distribution of arm-level copy number variation (CNV) patterns
+across different clusters.
 }
+\keyword{internal}

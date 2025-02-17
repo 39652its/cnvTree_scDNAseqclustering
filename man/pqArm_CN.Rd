@@ -2,22 +2,29 @@
 % Please edit documentation in R/scDNAclustering_03_pqArmClustering.R
 \name{pqArm_CN}
 \alias{pqArm_CN}
-\title{Smooth copy number matrix based on arm-level ranges}
+\title{Smooth copy number matrix using arm-level ranges}
 \usage{
 pqArm_CN(input, Cluster_label, Clustering_output, pqArm_file)
 }
 \arguments{
-\item{input}{A list of cells in GRanges-format object.}
+\item{input}{A named list where each element is a \code{GRanges} object representing a single cell.}
 
-\item{Cluster_label}{A integer for the specific cluster to calculate.}
+\item{Cluster_label}{An integer specifying the cluster for which the copy number smoothing is performed.}
 
-\item{Clustering_output}{A table recorded the clustering result for each cell. This table recorded the clustering history in each step.}
+\item{Clustering_output}{A data frame recording the clustering results for each cell,
+including the clustering history at each step.}
 
-\item{pqArm_file}{A table for cytoband information seen on Giemsa-stained chromosomes.}
+\item{pqArm_file}{A data frame containing cytoband information, representing p/q arm-level
+chromosome regions based on Giemsa-stained cytogenetic data.}
 }
 \value{
-A matrix in three copy number types (Deletion/Neutral/Amplification) based on arm-level ranges.
+A matrix with smoothed copy number states (Deletion, Neutral, or Amplification)
+at the arm level across chromosomes.
 }
 \description{
-Smooth copy number matrix based on arm-level ranges
+This function processes single-cell copy number data by smoothing
+copy number variations (CNVs) at the arm level. It utilizes clustering results
+and cytoband information to assign copy number states (Deletion, Neutral, or Amplification)
+for each chromosomal arm.
 }
+\keyword{internal}
