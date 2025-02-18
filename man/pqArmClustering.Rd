@@ -20,11 +20,10 @@ This function executes the pqArm clustering step in the single-cell DNA sequenci
 data clustering workflow, grouping cells based on chromosomal arm-level copy number variations.
 }
 \examples{
-\dontrun{
 file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 Example_data <- changeFormat(file = file_path, core = 4)
+UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 
 pqArm_result <- pqArmClustering(input = Example_data, pqArm_file = UCSC_cytoband_file_path)
-}
 
 }

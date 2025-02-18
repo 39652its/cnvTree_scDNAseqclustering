@@ -450,9 +450,9 @@ pqArm_recluster_result <- function(pqArm_cluster, Cluster, pqReclsut_target){
 pqArm_reclustering_summary <- function(Data){
   cluster_table <- table(Data) %>%
     as.data.frame() %>%
-    dplyr::arrange(dplyr::desc(.data$Freq)) %>%
-    dplyr::mutate(Recluster_cluster = seq_len(nrow(.))) %>%
-    stats::setNames(c("Recluster_pattern", "Recluster_cellnum", "Recluster_cluster"))
+    dplyr::arrange(dplyr::desc(.data$Freq))
+  cluster_table$Recluster_cluster <- seq_len(nrow(cluster_table))
+  colnames(cluster_table) <- c("Recluster_pattern", "Recluster_cellnum", "Recluster_cluster")
 
   return(cluster_table)
 }

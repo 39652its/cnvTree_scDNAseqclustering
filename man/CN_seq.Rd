@@ -24,10 +24,10 @@ and organizes them into an integer matrix. The matrix contains selected cells as
 with genomic regions (fixed bins) as rows.
 }
 \examples{
-\dontrun{
+
 file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 Example_data <- changeFormat(file = file_path, core = 4)
 CNmatrix <- CN_seq(input = Example_data, Template = names(Example_data)[1:10])
-}
+
 
 }

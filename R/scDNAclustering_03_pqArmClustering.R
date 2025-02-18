@@ -328,11 +328,10 @@ pqArm_clustering <- function(matrix, Label){
 pqArm_clustering_summary <- function(matrix, Label){
   cluster_table <- table(matrix$pqArm_pattern) %>%
     as.data.frame() %>%
-    dplyr::arrange(dplyr::desc(.data$Freq)) %>%
-    dplyr::mutate(cluster = Label,
-                  pqArm_cluster = seq_len(nrow(.))) %>%
-    # filter(Freq > 1) %>%
-    stats::setNames(c("pqArm_pattern", "pqArm_pattern_cellnum", "cluster", "pqArm_cluster"))
+    dplyr::arrange(dplyr::desc(.data$Freq))
+  cluster_table$cluster <- Label
+  cluster_table$pqArm_cluster <- seq_len(nrow(cluster_table))
+  colnames(cluster_table) <- c("pqArm_pattern", "pqArm_pattern_cellnum", "cluster", "pqArm_cluster")
 
   return(cluster_table)
 }

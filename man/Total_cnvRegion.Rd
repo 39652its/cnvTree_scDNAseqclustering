@@ -48,14 +48,20 @@ using a predefined segment template and cytoband information.
 The CNV regions are classified into two types: amplifications ("amp") and deletions ("del").
 }
 \examples{
-\dontrun{
+
+file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
+Example_data <- changeFormat(file = file_path, core = 4)
+subclone_template <- system.file("extdata", "SuncloneCN_example_data.rds", package = "cnvTree")
+subclone_template <- readRDS(file = subclone_template)
+UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
+
 cnv_regions <- Total_cnvRegion(
-  input = single_cell_data,
+  input = Example_data,
   Template = subclone_template,
-  pqArm_file = cytoband_data,
-  consecutive_region = 3
+  pqArm_file = UCSC_cytoband_file_path,
+  consecutive_region = 10**7
 )
 head(cnv_regions)
-}
+
 
 }

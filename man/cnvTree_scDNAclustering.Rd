@@ -60,6 +60,7 @@ including pqArm clustering, re-clustering, subclone clustering, and final CNV-ba
 \dontrun{
 file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 Example_data <- changeFormat(file = file_path, core = 4)
+UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 
 cnvTree_scDNAclustering(input=Example_data,
                         pqArm_file=UCSC_cytoband_file_path)

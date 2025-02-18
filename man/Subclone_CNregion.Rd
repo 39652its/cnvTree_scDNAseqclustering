@@ -41,15 +41,4 @@ The output includes the following columns:
 This function generates copy number (CN) outputs for each subclone using a unique chromosome segment template.
 It filters clusters based on a minimum cell count and outputs CN values for each region.
 }
-\examples{
-\dontrun{
-subclone_cn_output <- Subclone_CNregion(
-  sep_region = event_template,
-  CN_region = copy_number_matrix,
-  each_subclone = subclone_results,
-  min_cell = 10,
-  output = "Subclone"
-)
-head(subclone_cn_output)
-}
-}
+\keyword{internal}

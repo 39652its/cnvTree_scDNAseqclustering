@@ -32,16 +32,16 @@ using cytoband information to annotate chromosomal regions. It supports optional
 inclusion of sex chromosome CNV data in the output plot.
 }
 \examples{
-\dontrun{
 file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 Example_data <- changeFormat(file = file_path, core = 4)
+UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 
 GenomeHeatmap(
   Input = Example_data,
   cellID = names(Example_data)[1:10],
-  pqArm_file = cytoband_data_file_path,
+  pqArm_file = UCSC_cytoband_file_path,
   sexchromosome = TRUE
 )
-}
+
 
 }

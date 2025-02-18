@@ -63,17 +63,17 @@ endTimed <- function(ptm){
 #' @export
 #'
 #' @examples
-#' \dontrun{
 #' file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 #' Example_data <- changeFormat(file = file_path, core = 4)
+#' UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 #'
 #' GenomeHeatmap(
 #'   Input = Example_data,
 #'   cellID = names(Example_data)[1:10],
-#'   pqArm_file = cytoband_data_file_path,
+#'   pqArm_file = UCSC_cytoband_file_path,
 #'   sexchromosome = TRUE
 #' )
-#' }
+#'
 #'
 GenomeHeatmap <- function(Input, cellID, pqArm_file, sexchromosome=FALSE){
   # import CN template and total cell copy number matrix
@@ -219,16 +219,18 @@ segment_transform <- function(data, index, CN_chr_template) {
 #' \dontrun{
 #' file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 #' Example_data <- changeFormat(file = file_path, core = 4)
+#' clustering_results <- system.file("extdata", "template_example_data.rds", package = "cnvTree")
+#' clustering_results <- readRDS(file = clustering_results)
+#' UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 #'
 #' Totalcluster_pdf(
 #'   Input = Example_data,
 #'   Template = clustering_results,
-#'   FILEname = "copy_number_profiles.pdf",
-#'   FILEpath = "output/",
-#'   pqArm_file = cytoband_info,
-#'   cellnum_name = "cell_count",
+#'   FILEname = "cnvTree.scDNAseq_Grouping_fig.pdf",
+#'   pqArm_file = UCSC_cytoband_file_path,
+#'   cellnum_name = "Subclone_cellnum",
 #'   cellcutoff = 10,
-#'   cluster_name = "final_cluster",
+#'   cluster_name = "Subclone",
 #'   sexchromosome_plot = FALSE
 #' )
 #' }
@@ -514,8 +516,7 @@ scDNA.clustering <- function(Template){
 #' This function creates a heatmap displaying high-confidence copy number variation (CNV) patterns across clusters,
 #' with hierarchical clustering represented by a dendrogram.
 #'
-#' @param Input A binary matrix where rows represent clusters (`DNA_cluster`) and columns represent defined CNVs.
-#'    Values are `1` or `0`, indicating the presence or absence of a CNV in a cluster.
+#' @param Input A named list where each element is a `GRanges` object representing a single cell.
 #' @param final_cluster A data frame containing high-confidence CNV regions, with the following columns:
 #'   - `chr`: Chromosome name (chr1, chr2, ...).
 #'   - `CNV_region`: The index of CNV regions.
@@ -541,14 +542,16 @@ scDNA.clustering <- function(Template){
 #' \dontrun{
 #' file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 #' Example_data <- changeFormat(file = file_path, core = 4)
+#' final_cluster <- system.file("extdata", "template_example_data.rds", package = "cnvTree")
+#' final_cluster <- readRDS(file = final_cluster)
+#' UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 #'
 #' scDNA_CNVpattern(
-#'   Input = cnv_matrix,
-#'   final_cluster = final_cluster_info,
-#'   cellcutoff = 10,
-#'   pqArm_file = cytoband_info,
-#'   FILEpath = "output/",
-#'   FILEname = "cnv_heatmap.png",
+#'   Input = Example_data,
+#'   final_cluster = final_cluster,
+#'   cellcutoff = 5,
+#'   pqArm_file = UCSC_cytoband_file_path,
+#'   FILEname = "cnvTree.scDNAseq_heatmap.png",
 #'   sexchromosome=FALSE,
 #'   smoothing = TRUE
 #' )

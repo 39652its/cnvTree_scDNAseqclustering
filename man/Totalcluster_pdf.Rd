@@ -54,16 +54,18 @@ This function outputs copy number profiles from single-cell DNA sequencing (scDN
 \dontrun{
 file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 Example_data <- changeFormat(file = file_path, core = 4)
+clustering_results <- system.file("extdata", "template_example_data.rds", package = "cnvTree")
+clustering_results <- readRDS(file = clustering_results)
+UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 
 Totalcluster_pdf(
   Input = Example_data,
   Template = clustering_results,
-  FILEname = "copy_number_profiles.pdf",
-  FILEpath = "output/",
-  pqArm_file = cytoband_info,
-  cellnum_name = "cell_count",
+  FILEname = "cnvTree.scDNAseq_Grouping_fig.pdf",
+  pqArm_file = UCSC_cytoband_file_path,
+  cellnum_name = "Subclone_cellnum",
   cellcutoff = 10,
-  cluster_name = "final_cluster",
+  cluster_name = "Subclone",
   sexchromosome_plot = FALSE
 )
 }

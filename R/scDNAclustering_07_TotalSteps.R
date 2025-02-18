@@ -13,12 +13,11 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
 #' file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 #' Example_data <- changeFormat(file = file_path, core = 4)
+#' UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 #'
 #' pqArm_result <- pqArmClustering(input = Example_data, pqArm_file = UCSC_cytoband_file_path)
-#' }
 #'
 pqArmClustering <- function(input, pqArm_file){
   message("=== Step 02: pqArm Clustering ===")
@@ -67,15 +66,14 @@ pqArmClustering <- function(input, pqArm_file){
 #' @export
 #'
 #' @examples
-#' \dontrun{
 #' file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 #' Example_data <- changeFormat(file = file_path, core = 4)
+#' UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 #'
 #' pqArm_result <- pqArmClustering(input = Example_data, pqArm_file = UCSC_cytoband_file_path)
 #' Reclustering_output <- Reclustering(input = Example_data,
 #'                                     pqArm_output = pqArm_result,
 #'                                     pqArm_file = UCSC_cytoband_file_path)
-#' }
 #'
 Reclustering <- function(input, pqArm_output, pqArm_file, difratio_chr=0.3){
   message("=== Step 03: Reclustering ===")
@@ -143,9 +141,9 @@ Reclustering <- function(input, pqArm_output, pqArm_file, difratio_chr=0.3){
 #' @export
 #'
 #' @examples
-#' \dontrun{
 #' file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 #' Example_data <- changeFormat(file = file_path, core = 4)
+#' UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 #'
 #' pqArm_result <- pqArmClustering(input = Example_data, pqArm_file = UCSC_cytoband_file_path)
 #' Reclustering_output <- Reclustering(input = Example_data,
@@ -153,7 +151,6 @@ Reclustering <- function(input, pqArm_output, pqArm_file, difratio_chr=0.3){
 #'                                     pqArm_file = UCSC_cytoband_file_path)
 #' Final_output <- SubcloneClustering(input = Example_data,
 #'                                    Reclustering_output = Reclustering_output)
-#' }
 #'
 SubcloneClustering <- function(input, Reclustering_output, min_cell=5, overlap_region=10**7, dif_ratio=0.2){
   message("=== Step 04: Subclone Clustering ===")
@@ -244,6 +241,7 @@ SubcloneClustering <- function(input, Reclustering_output, min_cell=5, overlap_r
 #' \dontrun{
 #' file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 #' Example_data <- changeFormat(file = file_path, core = 4)
+#' UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 #'
 #' pqArm_result <- pqArmClustering(input = Example_data, pqArm_file = UCSC_cytoband_file_path)
 #' Reclustering_output <- Reclustering(input = Example_data,
@@ -327,6 +325,7 @@ scDNA_Output <- function(input, Summary, pqArm_file, output.dir=getwd(), consecu
 #' \dontrun{
 #' file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 #' Example_data <- changeFormat(file = file_path, core = 4)
+#' UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 #'
 #' cnvTree_scDNAclustering(input=Example_data,
 #'                         pqArm_file=UCSC_cytoband_file_path)

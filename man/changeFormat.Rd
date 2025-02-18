@@ -26,10 +26,10 @@ This function reads a \code{.rds} file containing copy number variation (CNV) da
 and converts it into a list of \code{GRanges} objects, where each element corresponds to a single cell.
 }
 \examples{
-\dontrun{
+
 file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 Example_data <- changeFormat(file = file_path, core = 4)
 CNmatrix <- CN_seq(input = Example_data, Template = names(Example_data)[1:10])
-}
+
 
 }

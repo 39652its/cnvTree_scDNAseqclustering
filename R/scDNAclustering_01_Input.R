@@ -5,7 +5,7 @@
 #' This function reads a `.rds` file containing copy number variation (CNV) data
 #' and converts it into a list of `GRanges` objects, where each element corresponds to a single cell.
 #'
-#' @param file A `.rds` file containing a data frame with the following required columns:
+#' @param file A `.rds` file or `.txt` file containing a data frame with the following required columns:
 #'   - `cellID`: Unique identifier for each cell.
 #'   - `seqnames`: Chromosome or sequence name.
 #'   - `start`: Start position of the segment.
@@ -17,16 +17,23 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#'
 #' file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 #' Example_data <- changeFormat(file = file_path, core = 4)
-#' CNmatrix <- CN_seq(input = Example_data, Template = names(Example_data)[1:10])
-#' }
+#'
 #'
 changeFormat <- function(file, cores) {
-  ptm <- startTimed("Read RDS file...")
+  ptm <- startTimed("Read input file...")
+  if(endsWith(file, ".rds") == TRUE){
+    Bin_CN <- readRDS(file)
+  } else if(endsWith(file, ".txt") == TRUE){
+    Bin_CN <- utils::read.delim2(file, sep = " ")
+  } else {
+    "Please input either .rds or .txt format as input."
+    endTimed(ptm)
+    stop(changeFormat)
+  }
 
-  Bin_CN <- readRDS(file)
   data.table::setDT(Bin_CN)
   endTimed(ptm)
 
@@ -92,13 +99,14 @@ changeFormat <- function(file, cores) {
 #' @return An integer matrix:
 #'   - Columns represent the selected `cellID`s.
 #'   - Rows represent genomic regions, separated into fixed bins.
+#' @export
 #'
 #' @examples
-#' \dontrun{
+#'
 #' file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 #' Example_data <- changeFormat(file = file_path, core = 4)
 #' CNmatrix <- CN_seq(input = Example_data, Template = names(Example_data)[1:10])
-#' }
+#'
 #'
 CN_seq <- function(input, Template){
     c <- list()

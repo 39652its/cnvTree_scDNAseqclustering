@@ -541,19 +541,7 @@ Subclone_clustering <- function(CN_incells_input, event_region, dif_ratio, Subcl
 #' @importFrom magrittr %>%
 #' @importFrom rlang .data
 #'
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' subclone_cn_output <- Subclone_CNregion(
-#'   sep_region = event_template,
-#'   CN_region = copy_number_matrix,
-#'   each_subclone = subclone_results,
-#'   min_cell = 10,
-#'   output = "Subclone"
-#' )
-#' head(subclone_cn_output)
-#' }
+#' @keywords internal
 Subclone_CNregion <- function(sep_region, CN_region, each_subclone, min_cell, output=c("SubcloneCNVRegion", "SubcloneRegionCN")){
   s <- each_subclone %>%
     dplyr::filter(.data$Subclone_cellnum >= min_cell)
@@ -636,15 +624,21 @@ Subclone_CNregion <- function(sep_region, CN_region, each_subclone, min_cell, ou
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#'
+#' file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
+#' Example_data <- changeFormat(file = file_path, core = 4)
+#' subclone_template <- system.file("extdata", "SuncloneCN_example_data.rds", package = "cnvTree")
+#' subclone_template <- readRDS(file = subclone_template)
+#' UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
+#'
 #' cnv_regions <- Total_cnvRegion(
-#'   input = single_cell_data,
+#'   input = Example_data,
 #'   Template = subclone_template,
-#'   pqArm_file = cytoband_data,
-#'   consecutive_region = 3
+#'   pqArm_file = UCSC_cytoband_file_path,
+#'   consecutive_region = 10**7
 #' )
 #' head(cnv_regions)
-#' }
+#'
 #'
 Total_cnvRegion <- function(input, Template, pqArm_file, consecutive_region){
   CN_tem <- data.frame(GenomicRanges::seqnames(input[[1]]$bins), IRanges::ranges(input[[1]]$bins))
@@ -733,16 +727,16 @@ Total_cnvRegion.DelAmp <- function(Template, CN_tem, method = c("Del", "Amp")){
   s_chr <- s_chr %>%
     dplyr::arrange(.data$chr) %>%
     dplyr::select(.data$chr) %>%
-    base::unique(.) %>%
-    dplyr::pull(.)
+    base::unique() %>%
+    dplyr::pull()
 
   # check whole chromosome region each site with occurs how many subclone CNVs
   Final_CNVr <- NULL
   for(k in s_chr){
     ss <- CN_tem %>%
-      dplyr::filter(.data$chr %in% k) %>%
-      dplyr::mutate(rows = seq_len(nrow(.)),
-                    n_subclone = 0)
+      dplyr::filter(.data$chr %in% k)
+    ss$rows <- seq_len(nrow(ss))
+    ss$n_subclone <- 0
 
     if (method == "Del"){
       S <- Template %>%

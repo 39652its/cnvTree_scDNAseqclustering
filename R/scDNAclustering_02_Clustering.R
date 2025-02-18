@@ -17,11 +17,11 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#'
 #' file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 #' Example_data <- changeFormat(file = file_path, core = 4)
 #' Clustering_Result <- clusterbyHMM(input = Example_data, selected = names(Example_data)[1:10])
-#' }
+#'
 #'
 clusterbyHMM <- function(input, selected, exclude.regions = NULL){
   hmms <- input[selected]

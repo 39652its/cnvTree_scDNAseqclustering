@@ -16,8 +16,7 @@ scDNA_CNVpattern(
 )
 }
 \arguments{
-\item{Input}{A binary matrix where rows represent clusters (\code{DNA_cluster}) and columns represent defined CNVs.
-Values are \code{1} or \code{0}, indicating the presence or absence of a CNV in a cluster.}
+\item{Input}{A named list where each element is a \code{GRanges} object representing a single cell.}
 
 \item{final_cluster}{A data frame containing high-confidence CNV regions, with the following columns:
 \itemize{
@@ -53,14 +52,16 @@ with hierarchical clustering represented by a dendrogram.
 \dontrun{
 file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 Example_data <- changeFormat(file = file_path, core = 4)
+final_cluster <- system.file("extdata", "template_example_data.rds", package = "cnvTree")
+final_cluster <- readRDS(file = final_cluster)
+UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 
 scDNA_CNVpattern(
-  Input = cnv_matrix,
-  final_cluster = final_cluster_info,
-  cellcutoff = 10,
-  pqArm_file = cytoband_info,
-  FILEpath = "output/",
-  FILEname = "cnv_heatmap.png",
+  Input = Example_data,
+  final_cluster = final_cluster,
+  cellcutoff = 5,
+  pqArm_file = UCSC_cytoband_file_path,
+  FILEname = "cnvTree.scDNAseq_heatmap.png",
   sexchromosome=FALSE,
   smoothing = TRUE
 )
