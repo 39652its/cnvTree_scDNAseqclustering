@@ -2,7 +2,7 @@
 # 1.0: changeFormat() read .rds to change as GRanges format
 #' Convert copy number data from .rds to GRanges Format
 #'
-#' This function reads a `.rds` file containing copy number variation (CNV) data
+#' This function reads a `.rds` file or `.txt` file containing copy number variation (CNV) data
 #' and converts it into a list of `GRanges` objects, where each element corresponds to a single cell.
 #'
 #' @param file A `.rds` file or `.txt` file containing a data frame with the following required columns:
