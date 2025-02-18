@@ -1,5 +1,5 @@
 ##### 01: Input
-# 1.0: changeFormat() read .rds or `.txt` to change as GRanges format
+# 1.0: changeFormat() read .rds or .txt to change as GRanges format
 #' Convert copy number data from .rds to GRanges Format
 #'
 #' This function reads a `.rds` file or `.txt` file containing copy number variation (CNV) data
