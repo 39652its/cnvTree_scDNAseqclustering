@@ -551,6 +551,7 @@ scDNA.clustering <- function(Template){
 #'   final_cluster = final_cluster,
 #'   cellcutoff = 5,
 #'   pqArm_file = UCSC_cytoband_file_path,
+#'   FILEpath = getwd(),
 #'   FILEname = "cnvTree.scDNAseq_heatmap.png",
 #'   sexchromosome=FALSE,
 #'   smoothing = TRUE

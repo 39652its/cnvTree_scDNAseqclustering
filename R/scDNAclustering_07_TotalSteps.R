@@ -149,7 +149,7 @@ Reclustering <- function(input, pqArm_output, pqArm_file, difratio_chr=0.3){
 #' Reclustering_output <- Reclustering(input = Example_data,
 #'                                     pqArm_output = pqArm_result,
 #'                                     pqArm_file = UCSC_cytoband_file_path)
-#' Final_output <- SubcloneClustering(input = Example_data,
+#' Subclone_output <- SubcloneClustering(input = Example_data,
 #'                                    Reclustering_output = Reclustering_output)
 #'
 SubcloneClustering <- function(input, Reclustering_output, min_cell=5, overlap_region=10**7, dif_ratio=0.2){
@@ -247,7 +247,7 @@ SubcloneClustering <- function(input, Reclustering_output, min_cell=5, overlap_r
 #' Reclustering_output <- Reclustering(input = Example_data,
 #'                                     pqArm_output = pqArm_result,
 #'                                     pqArm_file = UCSC_cytoband_file_path)
-#' Final_output <- SubcloneClustering(input = Example_data,
+#' Subclone_output <- SubcloneClustering(input = Example_data,
 #'                                    Reclustering_output = Reclustering_output)
 #' scDNA_Output(input = Example_data,
 #'              Summary = Final_output,
@@ -341,12 +341,12 @@ cnvTree_scDNAclustering <- function(input, pqArm_file, difratio_chr=0.3,
   Reclustering_output <- Reclustering(input = input, pqArm_output = pqArm_result, pqArm_file = pqArm_file, difratio_chr=difratio_chr)
 
   # step 03: Subclone clustering
-  Final_output <- SubcloneClustering(input = input, Reclustering_output = Reclustering_output,
+  Subclone_output <- SubcloneClustering(input = input, Reclustering_output = Reclustering_output,
                                      min_cell=min_cell_subclone, overlap_region=overlap_region_subclone, dif_ratio=dif_ratio_subclone)
 
   # step 04: Output
   scDNA_Output(input = input,
-               Summary = Final_output,
+               Summary = Subclone_output,
                output.dir = output.dir,
                pqArm_file = pqArm_file,
                consecutive_region = consecutive_region_output,
