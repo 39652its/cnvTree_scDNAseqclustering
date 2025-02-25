@@ -60,10 +60,10 @@ Two types of copy number variation (CNV) data can be used with scDNAcluster.
 
     There are four built-in cytoband templates available for direct selection. Below are their respective download links from the UCSC database for reference:
 
-      -   **hg38 (GRCh38)**: <https://hgdownload.soe.ucsc.edu/goldenPath/hg38/database/cytoBand.txt.gz>
-      -   **hg19 (GRCh37)**: <https://hgdownload.soe.ucsc.edu/goldenPath/hg19/database/cytoBand.txt.gz>
-      -   **mm39 (GRCm39)**: <https://hgdownload.soe.ucsc.edu/goldenPath/mm39/database/cytoBand.txt.gz>
-      -   **mm10 (GRCm38)**: <https://hgdownload.soe.ucsc.edu/goldenPath/mm10/database/cytoBand.txt.gz>
+      -   **hg38**: <https://hgdownload.soe.ucsc.edu/goldenPath/hg38/database/cytoBand.txt.gz>
+      -   **hg19**: <https://hgdownload.soe.ucsc.edu/goldenPath/hg19/database/cytoBand.txt.gz>
+      -   **mm39**: <https://hgdownload.soe.ucsc.edu/goldenPath/mm39/database/cytoBand.txt.gz>
+      -   **mm10**: <https://hgdownload.soe.ucsc.edu/goldenPath/mm10/database/cytoBand.txt.gz>
     
 2.  Custom cytoband template
 
@@ -85,10 +85,12 @@ Two types of copy number variation (CNV) data can be used with scDNAcluster.
 A single function call executes the entire single-cell DNA clustering analysis:
 
 ```
-    UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
-
+    # Input (Example by demodata)
+    Sample <- changeFormat(file = file_path)
+    
+    # Single call execution
     cnvTree_scDNAclustering(input = Sample,
-                            pqArm_file = UCSC_cytoband_file_path)
+                            pqArm_file = "hg38")
 ```                            
 
 ### Step-by-step execution
@@ -121,16 +123,16 @@ Alternatively, you can execute the analysis step by step. The scDNA cell cluster
                       If the sample has a complex CNV pattern, a lower value is recommended to retain more cells.
 
 ```
-    # Inputs
-    UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
-
+    # Input (Example by demodata)
+    Sample <- changeFormat(file = file_path)
+    
     # Steps for scDNA cell clustering
-    pqArm_result <- pqArmClustering(input = Sample, pqArm_file = UCSC_cytoband_file_path) 
-    Reclustering_output <- Reclustering(input = Sample, pqArm_output = pqArm_result, pqArm_file = UCSC_cytoband_file_path) 
+    pqArm_result <- pqArmClustering(input = Sample, pqArm_file = "hg38") 
+    Reclustering_output <- Reclustering(input = Sample, pqArm_output = pqArm_result, pqArm_file = "hg38") 
     Subclone_output <- SubcloneClustering(input = Example_data, Reclustering_output = Reclustering_output)
 
     # Outputs the cell clustering result
-    scDNA_Output(input = Example_data, Summary = Subclone_output, pqArm_file = UCSC_cytoband_file_path)
+    scDNA_Output(input = Example_data, Summary = Subclone_output, pqArm_file = "hg38")
 ```
 
 ## Outputs from scDNAcluster
