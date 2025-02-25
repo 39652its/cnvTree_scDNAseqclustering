@@ -70,7 +70,7 @@ pqArm_result <- pqArmClustering(input = Example_data, pqArm_file = UCSC_cytoband
 Reclustering_output <- Reclustering(input = Example_data,
                                     pqArm_output = pqArm_result,
                                     pqArm_file = UCSC_cytoband_file_path)
-Final_output <- SubcloneClustering(input = Example_data,
+Subclone_output <- SubcloneClustering(input = Example_data,
                                    Reclustering_output = Reclustering_output)
 scDNA_Output(input = Example_data,
              Summary = Final_output,

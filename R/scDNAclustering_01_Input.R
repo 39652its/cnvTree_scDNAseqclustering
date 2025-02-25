@@ -1,6 +1,6 @@
 ##### 01: Input
 # 1.0: changeFormat() read .rds or .txt to change as GRanges format
-#' Convert copy number data from .rds to GRanges Format
+#' Convert copy number data to GRanges Format
 #'
 #' This function reads a `.rds` file or `.txt` file containing copy number variation (CNV) data
 #' and converts it into a list of `GRanges` objects, where each element corresponds to a single cell.
@@ -22,7 +22,7 @@
 #' Example_data <- changeFormat(file = file_path, core = 4)
 #'
 #'
-changeFormat <- function(file, cores) {
+changeFormat <- function(file, cores=1) {
   ptm <- startTimed("Read input file...")
   if(endsWith(file, ".rds") == TRUE){
     Bin_CN <- readRDS(file)
