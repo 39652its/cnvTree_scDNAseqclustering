@@ -33,7 +33,8 @@ It includes the following columns:
 }
 }}
 
-\item{pqArm_file}{A table for cytoband information seen on Giemsa-stained chromosomes.
+\item{pqArm_file}{In-build cytoband template for selection: \code{hg38}, \code{hg19}, \code{mm10}, \code{mm39}.
+Or a filepath of a table for cytoband information seen on Giemsa-stained chromosomes.
 It should include the following columns:
 \itemize{
 \item \code{chrom}: Reference sequence chromosome or scaffold.
@@ -64,17 +65,16 @@ clustering workflow, integrating clustering results and generating visualization
 \dontrun{
 file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 Example_data <- changeFormat(file = file_path, core = 4)
-UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 
-pqArm_result <- pqArmClustering(input = Example_data, pqArm_file = UCSC_cytoband_file_path)
+pqArm_result <- pqArmClustering(input = Example_data, pqArm_file = "hg38")
 Reclustering_output <- Reclustering(input = Example_data,
                                     pqArm_output = pqArm_result,
-                                    pqArm_file = UCSC_cytoband_file_path)
+                                    pqArm_file = "hg38")
 Subclone_output <- SubcloneClustering(input = Example_data,
                                    Reclustering_output = Reclustering_output)
 scDNA_Output(input = Example_data,
              Summary = Final_output,
-             pqArm_file = UCSC_cytoband_file_path)
+             pqArm_file = "hg38")
 }
 
 }

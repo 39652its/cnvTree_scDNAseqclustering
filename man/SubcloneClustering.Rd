@@ -48,13 +48,12 @@ refining clusters based on copy number variations (CNVs) within subpopulations o
 \examples{
 file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 Example_data <- changeFormat(file = file_path, core = 4)
-UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 
-pqArm_result <- pqArmClustering(input = Example_data, pqArm_file = UCSC_cytoband_file_path)
+pqArm_result <- pqArmClustering(input = Example_data, pqArm_file = "hg38")
 Reclustering_output <- Reclustering(input = Example_data,
                                     pqArm_output = pqArm_result,
-                                    pqArm_file = UCSC_cytoband_file_path)
+                                    pqArm_file = "hg38")
 Subclone_output <- SubcloneClustering(input = Example_data,
-                                   Reclustering_output = Reclustering_output)
+                                     Reclustering_output = Reclustering_output)
 
 }

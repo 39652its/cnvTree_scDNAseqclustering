@@ -65,12 +65,11 @@ endTimed <- function(ptm){
 #' @examples
 #' file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 #' Example_data <- changeFormat(file = file_path, core = 4)
-#' UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 #'
 #' GenomeHeatmap(
 #'   Input = Example_data,
 #'   cellID = names(Example_data)[1:10],
-#'   pqArm_file = UCSC_cytoband_file_path,
+#'   pqArm_file = "hg38",
 #'   sexchromosome = TRUE
 #' )
 #'
@@ -196,7 +195,8 @@ segment_transform <- function(data, index, CN_chr_template) {
 #' This table recorded the clustering history in each step.
 #' @param FILEname A character string specifying the name of the output PDF file.
 #' @param FILEpath A character string specifying the file path where the output PDF will be saved.
-#' @param pqArm_file A table for cytoband information seen on Giemsa-stained chromosomes.
+#' @param pqArm_file In-build cytoband template for selection: `hg38`, `hg19`, `mm10`, `mm39`.
+#' Or a filepath of a table for cytoband information seen on Giemsa-stained chromosomes.
 #' It should include the following columns:
 #'   - `chrom`: Reference sequence chromosome or scaffold.
 #'   - `chromStart`: Start position in genoSeq.
@@ -221,13 +221,12 @@ segment_transform <- function(data, index, CN_chr_template) {
 #' Example_data <- changeFormat(file = file_path, core = 4)
 #' clustering_results <- system.file("extdata", "template_example_data.rds", package = "cnvTree")
 #' clustering_results <- readRDS(file = clustering_results)
-#' UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 #'
 #' Totalcluster_pdf(
 #'   Input = Example_data,
 #'   Template = clustering_results,
 #'   FILEname = "cnvTree.scDNAseq_Grouping_fig.pdf",
-#'   pqArm_file = UCSC_cytoband_file_path,
+#'   pqArm_file = "hg38",
 #'   cellnum_name = "Subclone_cellnum",
 #'   cellcutoff = 10,
 #'   cluster_name = "Subclone",
@@ -526,7 +525,14 @@ scDNA.clustering <- function(Template){
 #'   - `first_band`: Cytoband label of the first affected band.
 #'   - `last_band`: Cytoband label of the last affected band.
 #' @param cellcutoff A numeric value defining the minimum number of cells required for a cluster to be included.
-#' @param pqArm_file A data frame containing cytoband information from Giemsa-stained chromosomes.
+#' @param pqArm_file In-build cytoband template for selection: `hg38`, `hg19`, `mm10`, `mm39`.
+#' Or a filepath of a table for cytoband information seen on Giemsa-stained chromosomes.
+#' It should include the following columns:
+#'   - `chrom`: Reference sequence chromosome or scaffold.
+#'   - `chromStart`: Start position in genoSeq.
+#'   - `chromEnd`: End position in genoSeq.
+#'   - `name`: Name of cytogenetic band.
+#'   - `gieStain`: Giemsa stain results.
 #' @param FILEpath A character string specifying the directory where the output file will be saved.
 #' @param FILEname A character string specifying the name of the output `.png` file.
 #' @param sexchromosome A logical value. If `TRUE`, the heatmap includes copy number information for sex chromosomes.
@@ -544,13 +550,12 @@ scDNA.clustering <- function(Template){
 #' Example_data <- changeFormat(file = file_path, core = 4)
 #' final_cluster <- system.file("extdata", "template_example_data.rds", package = "cnvTree")
 #' final_cluster <- readRDS(file = final_cluster)
-#' UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 #'
 #' scDNA_CNVpattern(
 #'   Input = Example_data,
 #'   final_cluster = final_cluster,
 #'   cellcutoff = 5,
-#'   pqArm_file = UCSC_cytoband_file_path,
+#'   pqArm_file = "hg38",
 #'   FILEpath = getwd(),
 #'   FILEname = "cnvTree.scDNAseq_heatmap.png",
 #'   sexchromosome=FALSE,

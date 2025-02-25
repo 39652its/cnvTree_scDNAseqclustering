@@ -21,7 +21,8 @@ cnvTree_scDNAclustering(
 \arguments{
 \item{input}{A named list where each element is a \code{GRanges} object representing a single cell.}
 
-\item{pqArm_file}{A table for cytoband information seen on Giemsa-stained chromosomes.
+\item{pqArm_file}{In-build cytoband template for selection: \code{hg38}, \code{hg19}, \code{mm10}, \code{mm39}.
+Or a filepath of a table for cytoband information seen on Giemsa-stained chromosomes.
 It should include the following columns:
 \itemize{
 \item \code{chrom}: Reference sequence chromosome or scaffold.
@@ -60,10 +61,9 @@ including pqArm clustering, re-clustering, subclone clustering, and final CNV-ba
 \dontrun{
 file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 Example_data <- changeFormat(file = file_path, core = 4)
-UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 
 cnvTree_scDNAclustering(input=Example_data,
-                        pqArm_file=UCSC_cytoband_file_path)
+                        pqArm_file="hg38")
 }
 
 }

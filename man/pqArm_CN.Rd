@@ -14,8 +14,16 @@ pqArm_CN(input, Cluster_label, Clustering_output, pqArm_file)
 \item{Clustering_output}{A data frame recording the clustering results for each cell,
 including the clustering history at each step.}
 
-\item{pqArm_file}{A data frame containing cytoband information, representing p/q arm-level
-chromosome regions based on Giemsa-stained cytogenetic data.}
+\item{pqArm_file}{In-build cytoband template for selection: \code{hg38}, \code{hg19}, \code{mm10}, \code{mm39}.
+Or a filepath of a table for cytoband information seen on Giemsa-stained chromosomes.
+It should include the following columns:
+\itemize{
+\item \code{chrom}: Reference sequence chromosome or scaffold.
+\item \code{chromStart}: Start position in genoSeq.
+\item \code{chromEnd}: End position in genoSeq.
+\item \code{name}: Name of cytogenetic band.
+\item \code{gieStain}: Giemsa stain results.
+}}
 }
 \value{
 A matrix with smoothed copy number states (Deletion, Neutral, or Amplification)

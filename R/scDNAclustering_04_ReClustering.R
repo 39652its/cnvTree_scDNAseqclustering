@@ -122,7 +122,14 @@ euclidean <- function(a, b){
 #' @param pqArm_cluster A data frame recording the pqArm clustering history for each cell.
 #' @param Cluster An integer specifying the cluster for which the bin-level
 #' difference ratio is computed.
-#' @param pqArm_file A data frame containing cytoband information observed on Giemsa-stained chromosomes.
+#' @param pqArm_file In-build cytoband template for selection: `hg38`, `hg19`, `mm10`, `mm39`.
+#' Or a filepath of a table for cytoband information seen on Giemsa-stained chromosomes.
+#' It should include the following columns:
+#'   - `chrom`: Reference sequence chromosome or scaffold.
+#'   - `chromStart`: Start position in genoSeq.
+#'   - `chromEnd`: End position in genoSeq.
+#'   - `name`: Name of cytogenetic band.
+#'   - `gieStain`: Giemsa stain results.
 #'
 #' @importFrom magrittr %>%
 #' @importFrom rlang .data

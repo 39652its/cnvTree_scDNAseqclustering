@@ -9,8 +9,16 @@ pqArmClustering(input, pqArm_file)
 \arguments{
 \item{input}{A named list where each element is a \code{GRanges} object representing a single cell.}
 
-\item{pqArm_file}{A data frame containing cytoband information from Giemsa-stained chromosomes,
-which defines chromosomal p/q arm boundaries.}
+\item{pqArm_file}{In-build cytoband template for selection: \code{hg38}, \code{hg19}, \code{mm10}, \code{mm39}.
+Or a filepath of a table for cytoband information seen on Giemsa-stained chromosomes.
+It should include the following columns:
+\itemize{
+\item \code{chrom}: Reference sequence chromosome or scaffold.
+\item \code{chromStart}: Start position in genoSeq.
+\item \code{chromEnd}: End position in genoSeq.
+\item \code{name}: Name of cytogenetic band.
+\item \code{gieStain}: Giemsa stain results.
+}}
 }
 \value{
 A data frame recording the pqArm clustering results for each cell, tracking the clustering history at this stage.
@@ -22,8 +30,7 @@ data clustering workflow, grouping cells based on chromosomal arm-level copy num
 \examples{
 file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 Example_data <- changeFormat(file = file_path, core = 4)
-UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 
-pqArm_result <- pqArmClustering(input = Example_data, pqArm_file = UCSC_cytoband_file_path)
+pqArm_result <- pqArmClustering(input = Example_data, pqArm_file = "hg38")
 
 }

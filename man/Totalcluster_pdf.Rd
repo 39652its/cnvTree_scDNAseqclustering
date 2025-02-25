@@ -26,7 +26,8 @@ This table recorded the clustering history in each step.}
 
 \item{FILEpath}{A character string specifying the file path where the output PDF will be saved.}
 
-\item{pqArm_file}{A table for cytoband information seen on Giemsa-stained chromosomes.
+\item{pqArm_file}{In-build cytoband template for selection: \code{hg38}, \code{hg19}, \code{mm10}, \code{mm39}.
+Or a filepath of a table for cytoband information seen on Giemsa-stained chromosomes.
 It should include the following columns:
 \itemize{
 \item \code{chrom}: Reference sequence chromosome or scaffold.
@@ -56,13 +57,12 @@ file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 Example_data <- changeFormat(file = file_path, core = 4)
 clustering_results <- system.file("extdata", "template_example_data.rds", package = "cnvTree")
 clustering_results <- readRDS(file = clustering_results)
-UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 
 Totalcluster_pdf(
   Input = Example_data,
   Template = clustering_results,
   FILEname = "cnvTree.scDNAseq_Grouping_fig.pdf",
-  pqArm_file = UCSC_cytoband_file_path,
+  pqArm_file = "hg38",
   cellnum_name = "Subclone_cellnum",
   cellcutoff = 10,
   cluster_name = "Subclone",

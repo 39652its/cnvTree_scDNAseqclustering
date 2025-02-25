@@ -20,7 +20,8 @@ The output includes the following columns:
 \item \code{CN}: Copy number for the corresponding segment.
 }}
 
-\item{pqArm_file}{A table for cytoband information seen on Giemsa-stained chromosomes.
+\item{pqArm_file}{In-build cytoband template for selection: \code{hg38}, \code{hg19}, \code{mm10}, \code{mm39}.
+Or a filepath of a table for cytoband information seen on Giemsa-stained chromosomes.
 It should include the following columns:
 \itemize{
 \item \code{chrom}: Reference sequence chromosome or scaffold.
@@ -53,12 +54,11 @@ file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 Example_data <- changeFormat(file = file_path, core = 4)
 subclone_template <- system.file("extdata", "SuncloneCN_example_data.rds", package = "cnvTree")
 subclone_template <- readRDS(file = subclone_template)
-UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 
 cnv_regions <- Total_cnvRegion(
   input = Example_data,
   Template = subclone_template,
-  pqArm_file = UCSC_cytoband_file_path,
+  pqArm_file = "hg38",
   consecutive_region = 10**7
 )
 head(cnv_regions)

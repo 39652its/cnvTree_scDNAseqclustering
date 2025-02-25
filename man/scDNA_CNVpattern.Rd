@@ -31,7 +31,16 @@ scDNA_CNVpattern(
 
 \item{cellcutoff}{A numeric value defining the minimum number of cells required for a cluster to be included.}
 
-\item{pqArm_file}{A data frame containing cytoband information from Giemsa-stained chromosomes.}
+\item{pqArm_file}{In-build cytoband template for selection: \code{hg38}, \code{hg19}, \code{mm10}, \code{mm39}.
+Or a filepath of a table for cytoband information seen on Giemsa-stained chromosomes.
+It should include the following columns:
+\itemize{
+\item \code{chrom}: Reference sequence chromosome or scaffold.
+\item \code{chromStart}: Start position in genoSeq.
+\item \code{chromEnd}: End position in genoSeq.
+\item \code{name}: Name of cytogenetic band.
+\item \code{gieStain}: Giemsa stain results.
+}}
 
 \item{FILEpath}{A character string specifying the directory where the output file will be saved.}
 
@@ -54,13 +63,12 @@ file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 Example_data <- changeFormat(file = file_path, core = 4)
 final_cluster <- system.file("extdata", "template_example_data.rds", package = "cnvTree")
 final_cluster <- readRDS(file = final_cluster)
-UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 
 scDNA_CNVpattern(
   Input = Example_data,
   final_cluster = final_cluster,
   cellcutoff = 5,
-  pqArm_file = UCSC_cytoband_file_path,
+  pqArm_file = "hg38",
   FILEpath = getwd(),
   FILEname = "cnvTree.scDNAseq_heatmap.png",
   sexchromosome=FALSE,

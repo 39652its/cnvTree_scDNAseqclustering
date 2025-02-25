@@ -601,7 +601,8 @@ Subclone_CNregion <- function(sep_region, CN_region, each_subclone, min_cell, ou
 #'   - `region`: Unique region identifier.
 #'   - `Subclone`: Subclone identifier.
 #'   - `CN`: Copy number for the corresponding segment.
-#' @param pqArm_file A table for cytoband information seen on Giemsa-stained chromosomes.
+#' @param pqArm_file In-build cytoband template for selection: `hg38`, `hg19`, `mm10`, `mm39`.
+#' Or a filepath of a table for cytoband information seen on Giemsa-stained chromosomes.
 #' It should include the following columns:
 #'   - `chrom`: Reference sequence chromosome or scaffold.
 #'   - `chromStart`: Start position in genoSeq.
@@ -629,12 +630,11 @@ Subclone_CNregion <- function(sep_region, CN_region, each_subclone, min_cell, ou
 #' Example_data <- changeFormat(file = file_path, core = 4)
 #' subclone_template <- system.file("extdata", "SuncloneCN_example_data.rds", package = "cnvTree")
 #' subclone_template <- readRDS(file = subclone_template)
-#' UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 #'
 #' cnv_regions <- Total_cnvRegion(
 #'   input = Example_data,
 #'   Template = subclone_template,
-#'   pqArm_file = UCSC_cytoband_file_path,
+#'   pqArm_file = "hg38",
 #'   consecutive_region = 10**7
 #' )
 #' head(cnv_regions)
@@ -769,7 +769,8 @@ Total_cnvRegion.DelAmp <- function(Template, CN_tem, method = c("Del", "Amp")){
 #'
 #' @param FILE Either a character string specifying the file path for output,
 #' or a connection open for writing. An empty string (\code{""}) indicates output to the console.
-#' @param pqArm_file A table for cytoband information seen on Giemsa-stained chromosomes.
+#' @param pqArm_file In-build cytoband template for selection: `hg38`, `hg19`, `mm10`, `mm39`.
+#' Or a filepath of a table for cytoband information seen on Giemsa-stained chromosomes.
 #' It should include the following columns:
 #'   - `chrom`: Reference sequence chromosome or scaffold.
 #'   - `chromStart`: Start position in genoSeq.
@@ -793,6 +794,11 @@ Total_cnvRegion.DelAmp <- function(Template, CN_tem, method = c("Del", "Amp")){
 #' @keywords internal
 #'
 cnvRegion.toPQarm <- function(FILE, pqArm_file){
+  if (pqArm_file=="hg38" | pqArm_file=="hg19" | pqArm_file=="mm10" | pqArm_file=="mm39"){
+    filename <- paste0(pqArm_file, "_cytoBand.txt.gz")
+    pqArm_file <- system.file("extdata", filename, package = "cnvTree")
+  }
+
   pqArm_range <- utils::read.table(gzfile(pqArm_file),sep="\t", col.names = c("chr", "start", "end", "name","gieStain")) %>%
     dplyr::filter(.data$chr %in% FILE$chr)
 

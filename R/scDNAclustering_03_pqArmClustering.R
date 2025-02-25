@@ -5,9 +5,10 @@
 #' using cytoband information from Giemsa-stained chromosomes.
 #'
 #' @param input A named list where each element is a `GRanges` object representing a single cell.
-#' @param pqArm_file A table for cytoband information seen on Giemsa-stained chromosomes.
+#' @param pqArm_file In-build cytoband template for selection: `hg38`, `hg19`, `mm10`, `mm39`.
+#' Or a filepath of a table for cytoband information seen on Giemsa-stained chromosomes.
 #' It should include the following columns:
-#'   - `chrom"`: Reference sequence chromosome or scaffold.
+#'   - `chrom`: Reference sequence chromosome or scaffold.
 #'   - `chromStart`: Start position in genoSeq.
 #'   - `chromEnd`: End position in genoSeq.
 #'   - `name`: Name of cytogenetic band.
@@ -65,6 +66,11 @@ CN_template <- function(input, pqArm_file){
 #' @keywords internal
 #'
 pqArm_file.remake <- function(FILE){
+  if (FILE=="hg38" | FILE=="hg19" | FILE=="mm10" | FILE=="mm39"){
+    filename <- paste0(FILE, "_cytoBand.txt.gz")
+    FILE <- system.file("extdata", filename, package = "cnvTree")
+  }
+
   x <- utils::read.table(gzfile(FILE),sep="\t", col.names = c("chr", "start", "end", "name","gieStain"))
   x <- x %>% dplyr::filter(!grepl("_", .data$chr))
 
@@ -143,6 +149,11 @@ pqArm_file.pq <- function(Template){
 #'
 #' @keywords internal
 pqArm_file.cen <- function(FILE){
+  if (FILE=="hg38" | FILE=="hg19" | FILE=="mm10" | FILE=="mm39"){
+    filename <- paste0(FILE, "_cytoBand.txt.gz")
+    FILE <- system.file("extdata", filename, package = "cnvTree")
+  }
+
   x <- utils::read.table(gzfile(FILE),sep="\t", col.names = c("chr", "ChromStart", "ChromEnd", "name","gieStain"))
   x <- x %>% dplyr::filter(!grepl("_", .data$chr))
 
@@ -185,8 +196,14 @@ pqArm_file.cen <- function(FILE){
 #' @param Cluster_label An integer specifying the cluster for which the copy number smoothing is performed.
 #' @param Clustering_output A data frame recording the clustering results for each cell,
 #' including the clustering history at each step.
-#' @param pqArm_file A data frame containing cytoband information, representing p/q arm-level
-#' chromosome regions based on Giemsa-stained cytogenetic data.
+#' @param pqArm_file In-build cytoband template for selection: `hg38`, `hg19`, `mm10`, `mm39`.
+#' Or a filepath of a table for cytoband information seen on Giemsa-stained chromosomes.
+#' It should include the following columns:
+#'   - `chrom`: Reference sequence chromosome or scaffold.
+#'   - `chromStart`: Start position in genoSeq.
+#'   - `chromEnd`: End position in genoSeq.
+#'   - `name`: Name of cytogenetic band.
+#'   - `gieStain`: Giemsa stain results.
 #'
 #' @importFrom magrittr %>%
 #' @importFrom rlang .data

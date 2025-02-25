@@ -10,7 +10,8 @@ cnvRegion.toPQarm(FILE, pqArm_file)
 \item{FILE}{Either a character string specifying the file path for output,
 or a connection open for writing. An empty string (\code{""}) indicates output to the console.}
 
-\item{pqArm_file}{A table for cytoband information seen on Giemsa-stained chromosomes.
+\item{pqArm_file}{In-build cytoband template for selection: \code{hg38}, \code{hg19}, \code{mm10}, \code{mm39}.
+Or a filepath of a table for cytoband information seen on Giemsa-stained chromosomes.
 It should include the following columns:
 \itemize{
 \item \code{chrom}: Reference sequence chromosome or scaffold.

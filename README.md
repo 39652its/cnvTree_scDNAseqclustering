@@ -1,4 +1,4 @@
-# cnvTree-scCNVcluster: scDNA-seq data cell clustering
+# scDNAcluster
 
 ## Overview
 
@@ -14,11 +14,11 @@ Single-cell DNA sequencing (scDNA-seq) detects copy number variations (CNVs) by 
     devtools::install_github('39652its/cnvTree_scDNAseqclustering')
 ```
 
-## Inputs to cnvTree-scCNVcluster
+## Inputs to scDNAcluster
 
 ### Copy number variation (CNV) data in single-cell DNA sequencing
 
-Two types of copy number variation (CNV) data for scCNVcluster can be used with scCNVcluster.
+Two types of copy number variation (CNV) data can be used with scDNAcluster.
 
 1. CNV data output from the R package **Aneufinder**.
 
@@ -78,7 +78,7 @@ Two types of copy number variation (CNV) data for scCNVcluster can be used with 
     If you need to use a custom cytoband file beyond the provided options, please refer to the [UCSC Genome Browser Table Schema](https://genome.ucsc.edu/cgi-bin/hgTables?db=hg38&hgta_group=map&hgta_track=cytoBand&hgta_table=cytoBand&hgta_doSchema=describe+table+schema) for more details on the required format.
 
 
-## Running cnvTree-scCNVcluster
+## Running scDNAcluster
 
 ### Quick start
 
@@ -133,7 +133,7 @@ Alternatively, you can execute the analysis step by step. The scDNA cell cluster
     scDNA_Output(input = Example_data, Summary = Subclone_output, pqArm_file = UCSC_cytoband_file_path)
 ```
 
-## Outputs from cnvTree-scCNVcluster
+## Outputs from scDNAcluster
 
 The results of CNV-based clustering in scDNA-seq data will include the following output files:
 

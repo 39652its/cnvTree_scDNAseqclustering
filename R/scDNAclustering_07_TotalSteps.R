@@ -5,8 +5,14 @@
 #' data clustering workflow, grouping cells based on chromosomal arm-level copy number variations.
 #'
 #' @param input A named list where each element is a `GRanges` object representing a single cell.
-#' @param pqArm_file A data frame containing cytoband information from Giemsa-stained chromosomes,
-#'   which defines chromosomal p/q arm boundaries.
+#' @param pqArm_file In-build cytoband template for selection: `hg38`, `hg19`, `mm10`, `mm39`.
+#' Or a filepath of a table for cytoband information seen on Giemsa-stained chromosomes.
+#' It should include the following columns:
+#'   - `chrom`: Reference sequence chromosome or scaffold.
+#'   - `chromStart`: Start position in genoSeq.
+#'   - `chromEnd`: End position in genoSeq.
+#'   - `name`: Name of cytogenetic band.
+#'   - `gieStain`: Giemsa stain results.
 #'
 #' @return A data frame recording the pqArm clustering results for each cell, tracking the clustering history at this stage.
 #'
@@ -15,9 +21,8 @@
 #' @examples
 #' file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 #' Example_data <- changeFormat(file = file_path, core = 4)
-#' UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 #'
-#' pqArm_result <- pqArmClustering(input = Example_data, pqArm_file = UCSC_cytoband_file_path)
+#' pqArm_result <- pqArmClustering(input = Example_data, pqArm_file = "hg38")
 #'
 pqArmClustering <- function(input, pqArm_file){
   message("=== Step 02: pqArm Clustering ===")
@@ -53,8 +58,14 @@ pqArmClustering <- function(input, pqArm_file){
 #' @param input A named list where each element is a `GRanges` object representing a single cell.
 #' @param pqArm_output A data frame recording the pqArm clustering results for each cell.
 #'   This table tracks the clustering history up to this stage.
-#' @param pqArm_file A data frame containing cytoband information from Giemsa-stained chromosomes,
-#'   defining chromosomal p/q arm boundaries.
+#' @param pqArm_file In-build cytoband template for selection: `hg38`, `hg19`, `mm10`, `mm39`.
+#' Or a filepath of a table for cytoband information seen on Giemsa-stained chromosomes.
+#' It should include the following columns:
+#'   - `chrom`: Reference sequence chromosome or scaffold.
+#'   - `chromStart`: Start position in genoSeq.
+#'   - `chromEnd`: End position in genoSeq.
+#'   - `name`: Name of cytogenetic band.
+#'   - `gieStain`: Giemsa stain results.
 #' @param difratio_chr A numeric value defining the threshold for acceptable difference ratios across different chromosomes.
 #'
 #' @importFrom magrittr %>%
@@ -68,12 +79,11 @@ pqArmClustering <- function(input, pqArm_file){
 #' @examples
 #' file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 #' Example_data <- changeFormat(file = file_path, core = 4)
-#' UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 #'
-#' pqArm_result <- pqArmClustering(input = Example_data, pqArm_file = UCSC_cytoband_file_path)
+#' pqArm_result <- pqArmClustering(input = Example_data, pqArm_file = "hg38")
 #' Reclustering_output <- Reclustering(input = Example_data,
 #'                                     pqArm_output = pqArm_result,
-#'                                     pqArm_file = UCSC_cytoband_file_path)
+#'                                     pqArm_file = "hg38")
 #'
 Reclustering <- function(input, pqArm_output, pqArm_file, difratio_chr=0.3){
   message("=== Step 03: Reclustering ===")
@@ -143,14 +153,13 @@ Reclustering <- function(input, pqArm_output, pqArm_file, difratio_chr=0.3){
 #' @examples
 #' file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 #' Example_data <- changeFormat(file = file_path, core = 4)
-#' UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 #'
-#' pqArm_result <- pqArmClustering(input = Example_data, pqArm_file = UCSC_cytoband_file_path)
+#' pqArm_result <- pqArmClustering(input = Example_data, pqArm_file = "hg38")
 #' Reclustering_output <- Reclustering(input = Example_data,
 #'                                     pqArm_output = pqArm_result,
-#'                                     pqArm_file = UCSC_cytoband_file_path)
+#'                                     pqArm_file = "hg38")
 #' Subclone_output <- SubcloneClustering(input = Example_data,
-#'                                    Reclustering_output = Reclustering_output)
+#'                                      Reclustering_output = Reclustering_output)
 #'
 SubcloneClustering <- function(input, Reclustering_output, min_cell=5, overlap_region=10**7, dif_ratio=0.2){
   message("=== Step 04: Subclone Clustering ===")
@@ -221,7 +230,8 @@ SubcloneClustering <- function(input, Reclustering_output, min_cell=5, overlap_r
 #'     - `region`: The defined region index
 #'     - `Subclone`: Subclone identifier.
 #'     - `CN`: Copy number value of the segment.
-#' @param pqArm_file A table for cytoband information seen on Giemsa-stained chromosomes.
+#' @param pqArm_file In-build cytoband template for selection: `hg38`, `hg19`, `mm10`, `mm39`.
+#' Or a filepath of a table for cytoband information seen on Giemsa-stained chromosomes.
 #' It should include the following columns:
 #'   - `chrom`: Reference sequence chromosome or scaffold.
 #'   - `chromStart`: Start position in genoSeq.
@@ -241,17 +251,16 @@ SubcloneClustering <- function(input, Reclustering_output, min_cell=5, overlap_r
 #' \dontrun{
 #' file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 #' Example_data <- changeFormat(file = file_path, core = 4)
-#' UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 #'
-#' pqArm_result <- pqArmClustering(input = Example_data, pqArm_file = UCSC_cytoband_file_path)
+#' pqArm_result <- pqArmClustering(input = Example_data, pqArm_file = "hg38")
 #' Reclustering_output <- Reclustering(input = Example_data,
 #'                                     pqArm_output = pqArm_result,
-#'                                     pqArm_file = UCSC_cytoband_file_path)
+#'                                     pqArm_file = "hg38")
 #' Subclone_output <- SubcloneClustering(input = Example_data,
 #'                                    Reclustering_output = Reclustering_output)
 #' scDNA_Output(input = Example_data,
 #'              Summary = Final_output,
-#'              pqArm_file = UCSC_cytoband_file_path)
+#'              pqArm_file = "hg38")
 #' }
 #'
 scDNA_Output <- function(input, Summary, pqArm_file, output.dir=getwd(), consecutive_region=10**7, cellcutoff=5, sexchromosome_plot=FALSE, smoothheatmap=TRUE){
@@ -300,7 +309,8 @@ scDNA_Output <- function(input, Summary, pqArm_file, output.dir=getwd(), consecu
 #' including pqArm clustering, re-clustering, subclone clustering, and final CNV-based output generation.
 #'
 #' @param input A named list where each element is a `GRanges` object representing a single cell.
-#' @param pqArm_file A table for cytoband information seen on Giemsa-stained chromosomes.
+#' @param pqArm_file In-build cytoband template for selection: `hg38`, `hg19`, `mm10`, `mm39`.
+#' Or a filepath of a table for cytoband information seen on Giemsa-stained chromosomes.
 #' It should include the following columns:
 #'   - `chrom`: Reference sequence chromosome or scaffold.
 #'   - `chromStart`: Start position in genoSeq.
@@ -325,10 +335,9 @@ scDNA_Output <- function(input, Summary, pqArm_file, output.dir=getwd(), consecu
 #' \dontrun{
 #' file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 #' Example_data <- changeFormat(file = file_path, core = 4)
-#' UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 #'
 #' cnvTree_scDNAclustering(input=Example_data,
-#'                         pqArm_file=UCSC_cytoband_file_path)
+#'                         pqArm_file="hg38")
 #' }
 #'
 cnvTree_scDNAclustering <- function(input, pqArm_file, difratio_chr=0.3,

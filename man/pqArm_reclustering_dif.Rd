@@ -22,7 +22,16 @@ pqArm_reclustering_dif(
 \item{Cluster}{An integer specifying the cluster for which the bin-level
 difference ratio is computed.}
 
-\item{pqArm_file}{A data frame containing cytoband information observed on Giemsa-stained chromosomes.}
+\item{pqArm_file}{In-build cytoband template for selection: \code{hg38}, \code{hg19}, \code{mm10}, \code{mm39}.
+Or a filepath of a table for cytoband information seen on Giemsa-stained chromosomes.
+It should include the following columns:
+\itemize{
+\item \code{chrom}: Reference sequence chromosome or scaffold.
+\item \code{chromStart}: Start position in genoSeq.
+\item \code{chromEnd}: End position in genoSeq.
+\item \code{name}: Name of cytogenetic band.
+\item \code{gieStain}: Giemsa stain results.
+}}
 }
 \value{
 A data frame summarizing bin-level difference ratios across clusters.

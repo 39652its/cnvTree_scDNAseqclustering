@@ -34,12 +34,11 @@ inclusion of sex chromosome CNV data in the output plot.
 \examples{
 file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 Example_data <- changeFormat(file = file_path, core = 4)
-UCSC_cytoband_file_path <- system.file("extdata", "hg38_cytoBand.txt.gz", package = "cnvTree")
 
 GenomeHeatmap(
   Input = Example_data,
   cellID = names(Example_data)[1:10],
-  pqArm_file = UCSC_cytoband_file_path,
+  pqArm_file = "hg38",
   sexchromosome = TRUE
 )
 
