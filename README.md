@@ -49,6 +49,7 @@ Two types of copy number variation (CNV) data can be used with scDNAcluster.
     
 ```
     # Parsing data from other CNV calling tools into the required format
+    file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
     Sample <- changeFormat(file = file_path)
 ```
 
@@ -86,6 +87,7 @@ A single function call executes the entire single-cell DNA clustering analysis:
 
 ```
     # Input (Example by demodata)
+    file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
     Sample <- changeFormat(file = file_path)
     
     # Single call execution
@@ -124,6 +126,7 @@ Alternatively, you can execute the analysis step by step. The scDNA cell cluster
 
 ```
     # Input (Example by demodata)
+    file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
     Sample <- changeFormat(file = file_path)
     
     # Steps for scDNA cell clustering
