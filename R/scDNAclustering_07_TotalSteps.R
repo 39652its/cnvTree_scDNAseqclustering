@@ -109,7 +109,7 @@ Reclustering <- function(input, pqArm_output, pqArm_file, difratio_chr=0.3){
       Recluster_CellID <- pqArm_output %>%
         dplyr::filter(.data$cluster %in% Label) %>%
         dplyr::mutate(Recluster_pattern = .data$pqArm_pattern,
-                      Recluster_cellnum = .data$pqArm_pattern_cellnum,
+                      Recluster_cellnum = .data$pqArm_cellnum,
                       Recluster_cluster = .data$pqArm_cluster,
                       PQreturn = NA,
                       dif_num = NA,
@@ -205,6 +205,7 @@ SubcloneClustering <- function(input, Reclustering_output, min_cell=5, overlap_r
 
   }
 
+  colnames(Subclone_cluster) <- c("Subclone_cluster", "cellID", "Subclone_cellnum")
   Final_output <- list(final_cluster_output = dplyr::left_join(Reclustering_output, Subclone_cluster, by = "cellID"),
                        Subclone_CN = Subclone_CNr)
 
@@ -289,9 +290,10 @@ scDNA_Output <- function(input, Summary, pqArm_file, output.dir=getwd(), consecu
 
 
   # 5. Final cluster heatmap
-  Totalcluster_pdf(Input = input, Template = Summary$final_cluster_output,
-                   FILEname = "/cnvTree.scDNAseq_Grouping_fig.pdf", FILEpath = output.dir, pqArm_file = pqArm_file,
-                   cellnum_name = "Subclone_cellnum", cellcutoff = cellcutoff, cluster_name = "Subclone")
+  Totalcluster_pdf(
+    Input = input, Template = Summary$final_cluster_output,
+    pqArm_file = pqArm_file, cellcutoff = cellcutoff, step = "Subclone", sexchromosome_plot = sexchromosome_plot,
+    FILEpath = output.dir, FILEname = "/cnvTree.scDNAseq_Grouping_fig.pdf" )
   message("Output /cnvTree.scDNAseq_Grouping_fig.pdf is done.")
 
   # 6. cluster heatmap with dendrogram

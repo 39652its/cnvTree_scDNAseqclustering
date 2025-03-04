@@ -348,7 +348,7 @@ pqArm_clustering_summary <- function(matrix, Label){
     dplyr::arrange(dplyr::desc(.data$Freq))
   cluster_table$cluster <- Label
   cluster_table$pqArm_cluster <- seq_len(nrow(cluster_table))
-  colnames(cluster_table) <- c("pqArm_pattern", "pqArm_pattern_cellnum", "cluster", "pqArm_cluster")
+  colnames(cluster_table) <- c("pqArm_pattern", "pqArm_cellnum", "cluster", "pqArm_cluster")
 
   return(cluster_table)
 }

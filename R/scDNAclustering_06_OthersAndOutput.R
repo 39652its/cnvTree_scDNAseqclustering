@@ -83,11 +83,17 @@ GenomeHeatmap <- function(Input, cellID, pqArm_file, sexchromosome=FALSE){
     dplyr::mutate(X_cum = c(0, cumsum(as.numeric(length[-length(length)]))))
 
   # Import the HC clustering cell order
-  cellOrder <- clusterbyHMM(input = Input, selected = cellID)
-  cellOrder <- cellOrder$IDorder %>%
-    as.data.frame() %>%
-    tibble::rownames_to_column(var = "cellID")
-  Input <- Input[cellOrder$cellID]
+  if(length(cellID) == 1){
+    cellOrder <- cellID
+    Input <- Input[cellOrder]
+  } else {
+    cellOrder <- clusterbyHMM(input = Input, selected = cellID)
+    cellOrder <- cellOrder$IDorder %>%
+      as.data.frame() %>%
+      tibble::rownames_to_column(var = "cellID")
+    Input <- Input[cellOrder$cellID]
+  }
+
 
   # Import copy number data
   numofcell <- length(cellID)
@@ -164,7 +170,7 @@ GenomeHeatmap <- function(Input, cellID, pqArm_file, sexchromosome=FALSE){
 #'
 segment_transform <- function(data, index, CN_chr_template) {
   as.data.frame(data$bins) %>%
-    dplyr::mutate(segment = cumsum(.data$copy.number != stats::lag(.data$copy.number, default = gdata::first(.data$copy.number)))) %>%
+    dplyr::mutate(segment = rep(seq_along(rle(.data$copy.number)$values), rle(.data$copy.number)$lengths)) %>%
     dplyr::group_by(.data$seqnames, .data$segment, .data$copy.number) %>%
     dplyr::summarize(
       start = gdata::first(.data$start),
@@ -193,8 +199,6 @@ segment_transform <- function(data, index, CN_chr_template) {
 #' @param Input A named list where each element is a `GRanges` object representing a single cell.
 #' @param Template A table recorded the clustering, pqArm clustering, re-clustering, and subclone clustering step result for each cell.
 #' This table recorded the clustering history in each step.
-#' @param FILEname A character string specifying the name of the output PDF file.
-#' @param FILEpath A character string specifying the file path where the output PDF will be saved.
 #' @param pqArm_file In-build cytoband template for selection: `hg38`, `hg19`, `mm10`, `mm39`.
 #' Or a filepath of a table for cytoband information seen on Giemsa-stained chromosomes.
 #' It should include the following columns:
@@ -203,11 +207,12 @@ segment_transform <- function(data, index, CN_chr_template) {
 #'   - `chromEnd`: End position in genoSeq.
 #'   - `name`: Name of cytogenetic band.
 #'   - `gieStain`: Giemsa stain results.
-#' @param cellnum_name A character string specifying the column in `Template` that records the number of cells in each cluster.
 #' @param cellcutoff A numeric value defining the minimum number of cells required for a cluster to be included.
-#' @param cluster_name A character string specifying the column in `Template` that records the clustering result to be visualized.
+#' @param step A character string specifying the name of the output clustering step result to choose.
+#' The clustering step names for specification are "pqArm", "Recluster", and "Subclone", please matching the required names(default: "Subclone").
+#' @param FILEname A character string specifying the name of the output PDF file.
+#' @param FILEpath A character string specifying the file path where the output PDF will be saved.
 #' @param sexchromosome_plot A logical value. If `TRUE`, the output plot includes copy number information for sex chromosomes. Defaults to `FALSE`.
-#'
 #'
 #' @importFrom magrittr %>%
 #' @importFrom rlang .data
@@ -225,16 +230,19 @@ segment_transform <- function(data, index, CN_chr_template) {
 #' Totalcluster_pdf(
 #'   Input = Example_data,
 #'   Template = clustering_results,
-#'   FILEname = "cnvTree.scDNAseq_Grouping_fig.pdf",
 #'   pqArm_file = "hg38",
-#'   cellnum_name = "Subclone_cellnum",
 #'   cellcutoff = 10,
-#'   cluster_name = "Subclone",
+#'   step="Subclone",
+#'   FILEname = "cnvTree.scDNAseq_Grouping_fig.pdf",
 #'   sexchromosome_plot = FALSE
 #' )
 #' }
 #'
-Totalcluster_pdf <- function(Input, Template, FILEname, FILEpath, pqArm_file, cellnum_name, cellcutoff, cluster_name, sexchromosome_plot=FALSE){
+Totalcluster_pdf <- function(Input, Template, pqArm_file, cellcutoff, step="Subclone", FILEname, FILEpath, sexchromosome_plot=FALSE){
+  # select computed column name
+  cluster_name = paste0(step, "_cluster")
+  cellnum_name = paste0(step, "_cellnum")
+
   Cluster_No <- Totalcluster_Cluster_No(Template = Template, cellnum_name = cellnum_name, cellnum = cellcutoff, cluster_name = cluster_name)
 
   Fig_seq <- list()
@@ -489,7 +497,7 @@ scDNA.clustering <- function(Template){
   cnv_matrix <- matrix(nrow = length(Subclone_ss), ncol = length(cnv_region)+2)
   for(subclone in 1:length(Subclone_ss)){
     Cell_num <- Template$final_cluster_output %>%
-      dplyr::filter(.data$Subclone %in% Subclone_ss[subclone]) %>%
+      dplyr::filter(.data$Subclone_cluster %in% Subclone_ss[subclone]) %>%
       nrow()
     CNVs <- Template$superimpose %>%
       dplyr::filter(.data$Subclone %in% Subclone_ss[subclone]) %>%
@@ -579,10 +587,10 @@ scDNA_CNVpattern <- function(Input, final_cluster, cellcutoff, pqArm_file, FILEp
 
     # 先平均出每個bin 的copy number ，得到average sequence
     final_cluster <- final_cluster %>% dplyr::filter(.data$Subclone_cellnum >= cellcutoff)
-    subclone_no <- unique(final_cluster$Subclone)
+    subclone_no <- unique(final_cluster$Subclone_cluster)
     num_mat <- NULL
     for(i in 1:length(subclone_no)){
-      cellID <- final_cluster %>% dplyr::filter(.data$Subclone %in% subclone_no[i]) %>% dplyr::pull(.data$cellID)
+      cellID <- final_cluster %>% dplyr::filter(.data$Subclone_cluster %in% subclone_no[i]) %>% dplyr::pull(.data$cellID)
       Subclone_CN <- CN_seq(input = Input, Template = cellID)
       averageCN <- round(apply(Subclone_CN, 1, mean), digits = 0)  # mean() for cluster of cells
 
@@ -625,10 +633,10 @@ scDNA_CNVpattern <- function(Input, final_cluster, cellcutoff, pqArm_file, FILEp
     ### without smoothing step ###
     # 先平均出每個bin 的copy number ，得到average sequence
     final_cluster <- final_cluster %>% dplyr::filter(.data$Subclone_cellnum >= cellcutoff)
-    subclone_no <- unique(final_cluster$Subclone)
+    subclone_no <- unique(final_cluster$Subclone_cluster)
     num_mat <- NULL
     for(i in 1:length(subclone_no)){
-      cellID <- final_cluster %>% dplyr::filter(.data$Subclone %in% subclone_no[i]) %>% dplyr::pull(.data$cellID)
+      cellID <- final_cluster %>% dplyr::filter(.data$Subclone_cluster %in% subclone_no[i]) %>% dplyr::pull(.data$cellID)
       Subclone_CN <- CN_seq(input = Input, Template = cellID)
       num_mat <- cbind(num_mat, round(apply(Subclone_CN, 1, mean), digits = 0))
     }

@@ -23,12 +23,12 @@ pqArm_recluster <- function(pqArm_cluster, Cluster){
 
   # unique pattern output
   Pattern_more10 <- pqArm_cluster %>%
-    dplyr::filter(.data$pqArm_pattern_cellnum >= 2) %>%
+    dplyr::filter(.data$pqArm_cellnum >= 2) %>%
     dplyr::pull(.data$pqArm_pattern) %>%
     unique()
 
   Pattern_less10 <- pqArm_cluster %>%
-    dplyr::filter(.data$pqArm_pattern_cellnum < 10, .data$pqArm_pattern_cellnum >= 2) %>%
+    dplyr::filter(.data$pqArm_cellnum < 10, .data$pqArm_cellnum >= 2) %>%
     dplyr::pull(.data$pqArm_pattern) %>%
     base::unique()
 
@@ -312,7 +312,7 @@ pqArm_reclusterBy_ratio_target <- function(pqArm_cluster, Cluster, pqReclsut_sim
     dplyr::mutate(less10_times = dplyr::n(),
                   merge_pattern = paste0(.data$less10, "_", .data$more10))
   cellnum <- pqArm_cluster %>%
-    dplyr::select(.data$pqArm_pattern, .data$pqArm_pattern_cellnum) %>%
+    dplyr::select(.data$pqArm_pattern, .data$pqArm_cellnum) %>%
     dplyr::filter(.data$pqArm_pattern %in% c(Chioce$more10)) %>%
     dplyr::distinct(.data$pqArm_pattern, .keep_all = TRUE) %>%
     stats::setNames(c("more10", "more10_cellnum"))
@@ -428,7 +428,7 @@ pqArm_recluster_result <- function(pqArm_cluster, Cluster, pqReclsut_target){
   Recluster_summary <- pqArm_reclustering_summary(Data = pqArm_cluster$Recluster_pattern)
   pqArm_cluster <- dplyr::left_join(pqArm_cluster, Recluster_summary , by = "Recluster_pattern") %>%
     dplyr::arrange(dplyr::desc(.data$Recluster_cellnum)) %>%
-    dplyr::select(.data$cellID, .data$cluster, .data$pqArm_pattern, .data$pqArm_pattern_cellnum, .data$pqArm_cluster,
+    dplyr::select(.data$cellID, .data$cluster, .data$pqArm_pattern, .data$pqArm_cellnum, .data$pqArm_cluster,
                   .data$Recluster_pattern, .data$Recluster_cellnum, .data$Recluster_cluster, .data$PQreturn, .data$dif_num, .data$dif_ratio)
 
   return(pqArm_cluster)

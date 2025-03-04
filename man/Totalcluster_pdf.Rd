@@ -7,12 +7,11 @@
 Totalcluster_pdf(
   Input,
   Template,
+  pqArm_file,
+  cellcutoff,
+  step = "Subclone",
   FILEname,
   FILEpath,
-  pqArm_file,
-  cellnum_name,
-  cellcutoff,
-  cluster_name,
   sexchromosome_plot = FALSE
 )
 }
@@ -21,10 +20,6 @@ Totalcluster_pdf(
 
 \item{Template}{A table recorded the clustering, pqArm clustering, re-clustering, and subclone clustering step result for each cell.
 This table recorded the clustering history in each step.}
-
-\item{FILEname}{A character string specifying the name of the output PDF file.}
-
-\item{FILEpath}{A character string specifying the file path where the output PDF will be saved.}
 
 \item{pqArm_file}{In-build cytoband template for selection: \code{hg38}, \code{hg19}, \code{mm10}, \code{mm39}.
 Or a filepath of a table for cytoband information seen on Giemsa-stained chromosomes.
@@ -37,11 +32,14 @@ It should include the following columns:
 \item \code{gieStain}: Giemsa stain results.
 }}
 
-\item{cellnum_name}{A character string specifying the column in \code{Template} that records the number of cells in each cluster.}
-
 \item{cellcutoff}{A numeric value defining the minimum number of cells required for a cluster to be included.}
 
-\item{cluster_name}{A character string specifying the column in \code{Template} that records the clustering result to be visualized.}
+\item{step}{A character string specifying the name of the output clustering step result to choose.
+The clustering step names for specification are "pqArm", "Recluster", and "Subclone", please matching the required names(default: "Subclone").}
+
+\item{FILEname}{A character string specifying the name of the output PDF file.}
+
+\item{FILEpath}{A character string specifying the file path where the output PDF will be saved.}
 
 \item{sexchromosome_plot}{A logical value. If \code{TRUE}, the output plot includes copy number information for sex chromosomes. Defaults to \code{FALSE}.}
 }
@@ -61,11 +59,10 @@ clustering_results <- readRDS(file = clustering_results)
 Totalcluster_pdf(
   Input = Example_data,
   Template = clustering_results,
-  FILEname = "cnvTree.scDNAseq_Grouping_fig.pdf",
   pqArm_file = "hg38",
-  cellnum_name = "Subclone_cellnum",
   cellcutoff = 10,
-  cluster_name = "Subclone",
+  step="Subclone",
+  FILEname = "cnvTree.scDNAseq_Grouping_fig.pdf",
   sexchromosome_plot = FALSE
 )
 }
