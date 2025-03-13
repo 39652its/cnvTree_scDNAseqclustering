@@ -27,17 +27,12 @@ pqArm_recluster <- function(pqArm_cluster, Cluster){
     dplyr::pull(.data$pqArm_pattern) %>%
     unique()
 
-  Pattern_less10 <- pqArm_cluster %>%
-    dplyr::filter(.data$pqArm_cellnum < 10, .data$pqArm_cellnum >= 2) %>%
-    dplyr::pull(.data$pqArm_pattern) %>%
-    base::unique()
-
   # check any Pattern_more10 or Pattern_less10 is NULL
-  if(length(Pattern_more10)==0 | length(Pattern_less10)==0){
+  if(length(Pattern_more10)==0){
     return(0)
   } else{
     Pattern_more10 <- pqArm_cluster.pattern(Pattern_more10)
-    Pattern_less10 <- pqArm_cluster.pattern(pattern = Pattern_less10)
+    # Pattern_less10 <- pqArm_cluster.pattern(pattern = Pattern_less10)
   }
 
 
@@ -45,8 +40,8 @@ pqArm_recluster <- function(pqArm_cluster, Cluster){
   New_cluster <- NULL
   N_cluster <- NULL
   for (i in 1:ncol(Pattern_more10)){
-    for (j in 1:ncol(Pattern_less10)){
-      N_cluster <- c(N_cluster, euclidean(Pattern_more10[ ,i], Pattern_less10[ ,j]))
+    for (j in 1:ncol(Pattern_more10)){
+      N_cluster <- c(N_cluster, euclidean(Pattern_more10[ ,i], Pattern_more10[ ,j]))
     }
     New_cluster <- rbind(New_cluster, N_cluster)
     N_cluster <- NULL
@@ -55,7 +50,7 @@ pqArm_recluster <- function(pqArm_cluster, Cluster){
   New_cluster <- New_cluster %>%
     as.data.frame() %>%
     `row.names<-`(colnames(Pattern_more10)) %>%
-    `colnames<-`(colnames(Pattern_less10))
+    `colnames<-`(colnames(Pattern_more10))
 
   return(New_cluster)
 
@@ -225,7 +220,7 @@ pqArm_return.PQ <- function(pattern, PQarm){
   Pattern_unlist <- pqArm_cluster.pattern(pattern = pattern) %>%
     stats::setNames(c("less10", "more10"))
 
-  pqArm_select <- pqArm_list[which(Pattern_unlist$less10 != Pattern_unlist$more10)] %>%
+  pqArm_select <- pqArm_list[which(Pattern_unlist$less10 != Pattern_unlist$more10)]
 
 
   return(pqArm_select)
@@ -354,44 +349,22 @@ pqArm_reclusterBy_ratio_target <- function(pqArm_cluster, Cluster, pqReclsut_sim
   if (is.null(Chioce_Result) == TRUE){
     return(NULL)
   } else {
-    # 處理merge到的對象是cellnum<10的情況，因為這些群會同時出現在左邊與右邊
-    more10_pattern_list <- Chioce_Result %>%
-      dplyr::filter(.data$more10_cellnum<10) %>%
-      dplyr::arrange(dplyr::desc(.data$more10_cellnum)) %>%
-      dplyr::pull(.data$more10)
-    new_Chioceless10 <- NULL
-    while (length(more10_pattern_list)>0){
-      pattern =  more10_pattern_list[1]
-      check_pattern <- Chioce_Result %>%
-        dplyr::filter(.data$less10 == pattern | .data$more10 == pattern)
-      cellnum_list <- check_pattern %>%
-        dplyr::filter(.data$more10_cellnum > 10)
+    new_Chioce <- list()
+    count = 0
+    while(nrow(Chioce_Result)>0){
+      count = count + 1
+      pattern <- c(Chioce_Result$less10[1], Chioce_Result$more10[1]) # select start merge cluster
+      ss <- Chioce_Result %>%
+        dplyr::filter(.data$less10 %in% pattern | .data$more10 %in% pattern)
+      pattern_group <- c(unique(ss$less10, ss$more10))
+      new_Chioce[[count]] <- pattern_group
 
-      if (nrow(cellnum_list) > 0){
-        new_pattern <- cellnum_list %>% dplyr::pull(.data$more10)
-        new_Chioceless10 <- Chioce_Result %>%
-          dplyr::filter(.data$less10 == pattern | .data$more10 == pattern) %>%
-          dplyr::mutate(more10 = new_pattern) %>%
-          rbind(new_Chioceless10)
-      } else {
-        new_Chioceless10 <- Chioce_Result %>%
-          dplyr::filter(.data$less10 == pattern | .data$more10 == pattern) %>%
-          dplyr::mutate(more10 = pattern) %>%
-          rbind(new_Chioceless10)
-      }
-      rm_pattern <- unlist(unique(new_Chioceless10$less10))
-      intersection <- dplyr::intersect(more10_pattern_list, rm_pattern)
-      more10_pattern_list <- dplyr::setdiff(more10_pattern_list, intersection)
-
+      Chioce_Result <- Chioce_Result %>%
+        dplyr::filter(!.data$less10 %in% pattern_group & !.data$more10 %in% pattern_group)
     }
-
-    # 先將重新編輯過分群目的的細胞群移除，再併入最終的分群結果中
-    Chioce_Result <- Chioce_Result %>%
-      dplyr::filter(!.data$less10 %in% c(new_Chioceless10$less10)) %>%
-      rbind(new_Chioceless10)
-
-    return(Chioce_Result)
   }
+
+  return(new_Chioce)
 }
 
 
@@ -403,7 +376,6 @@ pqArm_reclusterBy_ratio_target <- function(pqArm_cluster, Cluster, pqReclsut_sim
 #'
 #' @param pqArm_cluster A data frame recording the pqArm-specific clustering results for each cell.
 #'   This table tracks the clustering history at each step.
-#' @param Cluster An integer specifying the cluster to be updated in the re-clustering process.
 #' @param pqReclsut_target A list containing character vectors representing clusters that should be grouped together.
 #'
 #' @importFrom magrittr %>%
@@ -416,20 +388,18 @@ pqArm_reclusterBy_ratio_target <- function(pqArm_cluster, Cluster, pqReclsut_sim
 #'
 #' @keywords internal
 #'
-pqArm_recluster_result <- function(pqArm_cluster, Cluster, pqReclsut_target){
-  # pqArm_cluster <- read.xlsx(xlsxFile = FILEpath)
-  pqArm_cluster = pqArm_cluster %>%
-    dplyr::filter(.data$cluster %in% Cluster)
+pqArm_recluster_result <- function(pqArm_cluster, pqReclsut_target){
+  pqArm_cluster$Recluster_pattern <- pqArm_cluster$pqArm_pattern
 
-  pqArm_cluster <- dplyr::left_join(pqArm_cluster, pqReclsut_target, by = c("pqArm_pattern" = "less10")) %>%
-    dplyr::select(!.data$more10_cellnum) %>%
-    dplyr::rename("Recluster_pattern" = "more10" )
-  pqArm_cluster$Recluster_pattern <- ifelse(is.na(pqArm_cluster$Recluster_pattern) == TRUE, pqArm_cluster$pqArm_pattern, pqArm_cluster$Recluster_pattern)
+  for(i in 1:length(pqReclsut_target)){
+    pqArm_cluster$Recluster_pattern <- ifelse(pqArm_cluster$Recluster_pattern%in%pqReclsut_target[[i]], i, pqArm_cluster$Recluster_pattern)
+  }
+
   Recluster_summary <- pqArm_reclustering_summary(Data = pqArm_cluster$Recluster_pattern)
   pqArm_cluster <- dplyr::left_join(pqArm_cluster, Recluster_summary , by = "Recluster_pattern") %>%
     dplyr::arrange(dplyr::desc(.data$Recluster_cellnum)) %>%
     dplyr::select(.data$cellID, .data$cluster, .data$pqArm_pattern, .data$pqArm_cellnum, .data$pqArm_cluster,
-                  .data$Recluster_pattern, .data$Recluster_cellnum, .data$Recluster_cluster, .data$PQreturn, .data$dif_num, .data$dif_ratio)
+                  .data$Recluster_pattern, .data$Recluster_cellnum, .data$Recluster_cluster)
 
   return(pqArm_cluster)
 }

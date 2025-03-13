@@ -4,13 +4,11 @@
 \alias{pqArm_recluster_result}
 \title{Generate final results of the Re-Clustering step}
 \usage{
-pqArm_recluster_result(pqArm_cluster, Cluster, pqReclsut_target)
+pqArm_recluster_result(pqArm_cluster, pqReclsut_target)
 }
 \arguments{
 \item{pqArm_cluster}{A data frame recording the pqArm-specific clustering results for each cell.
 This table tracks the clustering history at each step.}
-
-\item{Cluster}{An integer specifying the cluster to be updated in the re-clustering process.}
 
 \item{pqReclsut_target}{A list containing character vectors representing clusters that should be grouped together.}
 }

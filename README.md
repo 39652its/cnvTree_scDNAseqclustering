@@ -105,7 +105,8 @@ Alternatively, you can run the analysis step by step. The scDNAcluster workflow 
 
     -   `difratio_chr`: A numeric threshold for acceptable CNV differences across chromosomes, where higher values
                         retain more cells for further analysis. If the sample has a complex CNV pattern, increasing 
-                        this value is recommended. A reasonable range is between 0 and 0.5.
+                        this value is recommended. A reasonable range is between 0 and 0.5, with 0 representing a strict
+                        threshold and 0.5 a more lenient one.
 
 3.  **Subclone clustering step**: Clusters are further refined based on subpopulation-specific copy number variations (CNVs). Significant breakpoints are identified within each cluster based on absolute copy number values, defining event regions and segmenting CN sequences for subclone classification.
 
@@ -114,7 +115,7 @@ Alternatively, you can run the analysis step by step. The scDNAcluster workflow 
     -   `dif_ratio`: A numeric threshold for tolerating CNV differences within a cluster.
                     Increasing this value allows more cells to be grouped together, making clustering coarser. 
                     If the sample has a complex CNV structure, a higher value is advisable. 
-                    The recommended range is between 0 and 0.5.
+                    The recommended range is between 0 and 0.5, with 0 representing a strict threshold and 0.5 a more lenient one.
 
 4.  **Output final results step**: The final clustering results are integrated, and visualizations are generated. This step identifies high-confidence CNV regions and reconstructs tumor evolution based on CNV presence.
 

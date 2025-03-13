@@ -34,8 +34,8 @@ It should include the following columns:
 
 \item{cellcutoff}{A numeric value defining the minimum number of cells required for a cluster to be included.}
 
-\item{step}{A character string specifying the name of the output clustering step result to choose.
-The clustering step names for specification are "pqArm", "Recluster", and "Subclone", please matching the required names(default: "Subclone").}
+\item{step}{A character string specifying the name of the output clustering step to select.
+Valid options are "pqArm," "Recluster," and "Subclone." Please ensure the name matches one of these options (default: "Subclone").}
 
 \item{FILEname}{A character string specifying the name of the output PDF file.}
 

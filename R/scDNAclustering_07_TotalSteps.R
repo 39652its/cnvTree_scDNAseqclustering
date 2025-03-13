@@ -90,7 +90,7 @@ Reclustering <- function(input, pqArm_output, pqArm_file, difratio_chr=0.3){
 
   Recluster_Output <- NULL
   for(Label in unique(pqArm_output$cluster)){
-    ptm <- startTimed("Reclustering for cluster ", Label, " ...")
+    ptm <- startTimed("Reclustering clusters to make cluster bigger ...")
     pqArm_merge_target <- NULL
     New_pqArm_clustering <- pqArm_recluster(pqArm_cluster = pqArm_output, Cluster = Label)
 
@@ -103,17 +103,14 @@ Reclustering <- function(input, pqArm_output, pqArm_file, difratio_chr=0.3){
 
     # is.null(pqArm_merge_target)
     if(is.null(pqArm_merge_target) == FALSE){
-      Recluster_CellID <- pqArm_recluster_result(pqArm_cluster = pqArm_output, Cluster = Label, pqReclsut_target = pqArm_merge_target)
+      Recluster_CellID <- pqArm_recluster_result(pqArm_cluster = pqArm_output, pqReclsut_target = pqArm_merge_target)
       Recluster_Output <- rbind(Recluster_Output, Recluster_CellID)
     } else {
       Recluster_CellID <- pqArm_output %>%
         dplyr::filter(.data$cluster %in% Label) %>%
         dplyr::mutate(Recluster_pattern = .data$pqArm_pattern,
                       Recluster_cellnum = .data$pqArm_cellnum,
-                      Recluster_cluster = .data$pqArm_cluster,
-                      PQreturn = NA,
-                      dif_num = NA,
-                      dif_ratio = NA)
+                      Recluster_cluster = .data$pqArm_cluster)
       Recluster_Output <- rbind(Recluster_Output, Recluster_CellID)
     }
     endTimed(ptm)

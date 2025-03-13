@@ -208,8 +208,8 @@ segment_transform <- function(data, index, CN_chr_template) {
 #'   - `name`: Name of cytogenetic band.
 #'   - `gieStain`: Giemsa stain results.
 #' @param cellcutoff A numeric value defining the minimum number of cells required for a cluster to be included.
-#' @param step A character string specifying the name of the output clustering step result to choose.
-#' The clustering step names for specification are "pqArm", "Recluster", and "Subclone", please matching the required names(default: "Subclone").
+#' @param step A character string specifying the name of the output clustering step to select.
+#' Valid options are "pqArm," "Recluster," and "Subclone." Please ensure the name matches one of these options (default: "Subclone").
 #' @param FILEname A character string specifying the name of the output PDF file.
 #' @param FILEpath A character string specifying the file path where the output PDF will be saved.
 #' @param sexchromosome_plot A logical value. If `TRUE`, the output plot includes copy number information for sex chromosomes. Defaults to `FALSE`.
