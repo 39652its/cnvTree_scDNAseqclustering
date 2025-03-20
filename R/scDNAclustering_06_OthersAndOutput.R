@@ -131,11 +131,20 @@ GenomeHeatmap <- function(Input, cellID, pqArm_file, sexchromosome=FALSE){
     numofcell <= 10  ~ 30
   )
 
+  segment_length = dplyr::case_when(
+    numofcell > 201 ~ 2,
+    numofcell >= 101 & numofcell <= 200  ~ 4,
+    numofcell >= 41 & numofcell <= 100  ~ 10,
+    numofcell >= 21 & numofcell <= 40  ~ 15,
+    numofcell >= 1 & numofcell <= 20  ~ 20
+  )
+
   PlotCN_heatmap <-
     ggplot2::ggplot(mat_input) +
     ggplot2::geom_segment(ggplot2::aes(x = .data$X_cum_start, xend = .data$X_cum_end, y = .data$Y_cum_start, yend = .data$Y_cum_end,
-                     color = factor(.data$CN)), linewidth = 2, show.legend = TRUE) +
-    ggplot2::scale_color_manual(name="Copy Number", labels=lgd_labels, values=color_tem)+
+                     color = factor(.data$CN)), linewidth = segment_length, show.legend = TRUE) +
+    ggplot2::scale_color_manual(name="Copy Number", labels=lgd_labels, values=color_tem,
+                                guide = ggplot2::guide_legend(override.aes = list(linewidth = 6)))+
     ggplot2::geom_segment(data = Chr_tmp, ggplot2::aes(x = .data$X_cum_end , y = -0.2, xend = .data$X_cum_end, yend = .data$Y_end)) +
     ggplot2::geom_text(data = Chr_tmp, ggplot2::aes(x = .data$text_pos, y = -0.05 * height, label = .data$chr), size = 10) +
     ggplot2::labs(x = "Chromosome", y = "Cell ID", color = "Copy Number") +
