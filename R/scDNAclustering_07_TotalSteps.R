@@ -168,7 +168,7 @@ SubClustering <- function(input, Consolidating_output, min_cell=5, overlap_regio
 
   # from overlap_region to number of bins in coverage
   binsize <- as.data.frame(input[[1]]$bins)$width[1]
-  overlap_bp <- round((overlap_region/binsize)/2, digits = 0)
+  overlap_bp <- round((overlap_region/binsize), digits = 0)
 
   # Select enough cell number Reclusters, avoiding keep filtering
   R <- Consolidating_output %>% dplyr::filter(.data$Recluster_cellnum >= min_cell)
