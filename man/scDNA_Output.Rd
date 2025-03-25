@@ -20,7 +20,7 @@ scDNA_Output(
 
 \item{Summary}{A list containing two data frames:
 \itemize{
-\item \code{final_cluster_output}: Records the clustering history from the pqArm, re-clustering, and subclone clustering steps.
+\item \code{final_cluster_output}: Records the clustering history from the pqArm, consolidating, and subclustering steps.
 \item \code{Subclone_CN}: Records each subclone's unique chromosome segment template and its copy number.
 It includes the following columns:
 \itemize{
@@ -67,11 +67,11 @@ file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
 Example_data <- changeFormat(file = file_path, core = 4)
 
 pqArm_result <- pqArmClustering(input = Example_data, pqArm_file = "hg38")
-Reclustering_output <- Reclustering(input = Example_data,
-                                    pqArm_output = pqArm_result,
-                                    pqArm_file = "hg38")
-Subclone_output <- SubcloneClustering(input = Example_data,
-                                   Reclustering_output = Reclustering_output)
+Consolidating_output <- clusterConsolidation(input = Example_data,
+                                            pqArm_output = pqArm_result,
+                                            pqArm_file = "hg38")
+Subclone_output <- SubClustering(input = Example_data,
+                                     Consolidating_output = Consolidating_output)
 scDNA_Output(input = Example_data,
              Summary = Final_output,
              pqArm_file = "hg38")

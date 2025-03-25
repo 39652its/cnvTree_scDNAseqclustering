@@ -755,7 +755,7 @@ generate_dynamic_colormap <- function(data_matrix) {
   unique_values <- sort(unique(as.vector(data_matrix)))
 
   # 固定的顏色對應表，對應數值 0~5
-  predefined_colors <- c("#D0CECE", "#8165A3", "#9BBB59", "#C0504D", "#ED7D31", "#FFC000")
+  predefined_colors <- c("#D0CECE", "#8165A3", "#9BBB59", "#FFC000", "#C0504D", "#ED7D31")
   names(predefined_colors) <- 0:5  # 為 0~5 數值建立顏色對應表
 
   # 定義漸層調色板，用於處理超過 5 的數值

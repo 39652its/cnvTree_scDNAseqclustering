@@ -88,10 +88,10 @@ You can execute the entire single-cell DNA clustering analysis with a single fun
 ```
     # Input (Example using demo data)  
     file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
-    Sample <- changeFormat(file = file_path)
+    Example_data <- changeFormat(file = file_path)
     
     # Single-call execution
-    cnvTree_scDNAclustering(input = Sample,
+    cnvTree_scDNAclustering(input = Example_data,
                             pqArm_file = "hg38")
 ```                            
 
@@ -101,14 +101,14 @@ Alternatively, you can run the analysis step by step. The scDNAcluster workflow 
 
 1.  **pqArm clustering step**: Cells are grouped based on chromosomal arm-level (p/q arm) copy number variations. Copy number values are categorized into three states: Deletion, Neutral, and Amplification.
 
-2.  **Re-clustering step**: Clusters are re-analyzed by comparing different chromosomal arm-level CNVs at the bin level. The most similar clusters are merged to minimize cell exclusion.
+2.  **Cluster consolidation step**: Clusters are re-analyzed by comparing different chromosomal arm-level CNVs at the bin level. The most similar clusters are merged to minimize cell exclusion.
 
     -   `difratio_chr`: A numeric threshold for acceptable CNV differences across chromosomes, where higher values
                         retain more cells for further analysis. If the sample has a complex CNV pattern, increasing 
                         this value is recommended. A reasonable range is between 0 and 0.5, with 0 representing a strict
                         threshold and 0.5 a more lenient one.
 
-3.  **Subclone clustering step**: Clusters are further refined based on subpopulation-specific copy number variations (CNVs). Significant breakpoints are identified within each cluster based on absolute copy number values, defining event regions and segmenting CN sequences for subclone classification.
+3.  **Subclustering step**: Clusters are further refined based on subpopulation-specific copy number variations (CNVs). Significant breakpoints are identified within each cluster based on absolute copy number values, defining event regions and segmenting CN sequences for subclone classification.
 
     -   `overlap_region`: A numeric value determines how much genomic space is masked when identifying frequent CNV
                           regions. A higher value results in coarser clustering, which is useful for complex CNV patterns.
@@ -128,12 +128,12 @@ Alternatively, you can run the analysis step by step. The scDNAcluster workflow 
 ```
     # Input (Example using demo data)  
     file_path <- system.file("extdata", "example_data.rds", package = "cnvTree")
-    Sample <- changeFormat(file = file_path)
+    Example_data <- changeFormat(file = file_path)
     
     # Step-by-step execution  
-    pqArm_result <- pqArmClustering(input = Sample, pqArm_file = "hg38") 
-    Reclustering_output <- Reclustering(input = Sample, pqArm_output = pqArm_result, pqArm_file = "hg38") 
-    Subclone_output <- SubcloneClustering(input = Example_data, Reclustering_output = Reclustering_output)
+    pqArm_result <- pqArmClustering(input = Example_data, pqArm_file = "hg38") 
+    Consolidation_result <- clusterConsolidation(input = Example_data, pqArm_output = pqArm_result, pqArm_file = "hg38") 
+    Subclone_output <- SubClustering(input = Example_data, Consolidating_output = Consolidation_result)
 
     # Output cell clustering results
     scDNA_Output(input = Example_data, Summary = Subclone_output, pqArm_file = "hg38")

@@ -310,18 +310,18 @@ bp_region <- function(event, binsize){
     } else {
       for (j in 1:(nrow(event_R)+1)){
         if(j == 1){
-          start <- c(start, 1)
-          end <- c(end, event_R$bp_start[j]-1)
+          start <- c(0)
+          end <- c(event_R$bp_start[j])
           event_binstart <- c(event_binstart, event_R$CDF_start[j])
           event_binend <- c(event_binend, event_R$bins_level_min[j])
         } else if (j == (nrow(event_R)+1)){
-          start <- c(start, event_R$bp_end[j-1]+1)
+          start <- c(start, event_R$bp_end[j-1])
           end <- c(end, event_R$Freq[j-1]*binsize)
           event_binstart <- c(event_binstart, event_R$bins_level_max[j-1])
           event_binend <- c(event_binend, event_R$CDF_end[j-1])
         } else {
-          start <- c(start, event_R$bp_end[j-1]+1)
-          end <- c(end, event_R$bp_start[j]-1)
+          start <- c(start, event_R$bp_end[j-1])
+          end <- c(end, event_R$bp_start[j])
           event_binstart <- c(event_binstart, event_R$bins_level_max[j-1])
           event_binend <- c(event_binend, event_R$bins_level_min[j])
         }
@@ -667,20 +667,31 @@ Total_cnvRegion <- function(input, Template, pqArm_file, consecutive_region){
       dplyr::mutate(gap = cumsum(c(0, diff(.data$rows) != 1)),
                     chr_gapno = paste0(.data$chr, "_", .data$gap)) %>%
       dplyr::group_by(.data$chr_gapno) %>%
-      dplyr::filter(dplyr::n() > consecutive_bins) %>%
+      dplyr::filter(dplyr::n() > consecutive_bins)
+
+    # filter CNV length
+    if(nrow(Final_CNVr[[CN_type]]) != 0 ){
+      Final_CNVr[[CN_type]] <- Final_CNVr[[CN_type]] %>%
       dplyr::summarise(CNV_start = min(.data$start),
                        CNV_end = max(.data$end)) %>%
       tidyr::separate(.data$chr_gapno, into = c("chr", "CNV_region"), sep = "_") %>%
       as.data.frame()
+    }
 
     Final_CNVr[[CN_type]] <- Final_CNVr[[CN_type]] %>% dplyr::mutate(CN = CN_type)
   }
-  Final_CNV <- Final_CNVr$del %>%
-    rbind(Final_CNVr$amp) %>%
-    dplyr::mutate(chr = factor(.data$chr, levels = levels(CN_tem$chr))) %>%
-    dplyr::arrange(.data$chr) %>%
-    dplyr::mutate(CNV_region = seq_len(dplyr::n())) %>%
-    dplyr::select(c("chr", "CNV_region", "CN", "CNV_start", "CNV_end"))
+
+  Final_CNV <- rbind(Final_CNVr$del, Final_CNVr$amp)
+
+  if(nrow(Final_CNV) != 0 ){
+    Final_CNV <- Final_CNV %>%
+      dplyr::mutate(chr = factor(.data$chr, levels = levels(CN_tem$chr))) %>%
+      dplyr::arrange(.data$chr) %>%
+      dplyr::mutate(CNV_region = seq_len(dplyr::n())) %>%
+      dplyr::select(c("chr", "CNV_region", "CN", "CNV_start", "CNV_end"))
+  }
+
+
 
 
   return(Final_CNV)

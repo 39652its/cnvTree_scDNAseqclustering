@@ -55,7 +55,7 @@ The function performs complete clustering and CNV analysis, saving final results
 }
 \description{
 This function executes the entire single-cell DNA sequencing (scDNA-seq) clustering workflow in one step,
-including pqArm clustering, re-clustering, subclone clustering, and final CNV-based output generation.
+including pqArm clustering, consolidating, subclustering, and final CNV-based output generation.
 }
 \examples{
 \dontrun{

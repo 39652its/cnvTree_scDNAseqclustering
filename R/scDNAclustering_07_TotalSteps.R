@@ -48,11 +48,11 @@ pqArmClustering <- function(input, pqArm_file){
 }
 
 
-# 7.2: Reclustering() stands for Reclustering method
-#' Perform Re-clustering in scDNA-seq data clustering workflow
+# 7.2: Consolidating() stands for Reclustering method
+#' Perform Cluster Consolidation in scDNA-seq data clustering workflow
 #'
-#' This function executes the re-clustering step in the single-cell DNA sequencing (scDNA-seq)
-#' data clustering workflow, reclustering clusters based on differences in chromosomal arm-level
+#' This function executes the Cluster Consolidation step in the single-cell DNA sequencing (scDNA-seq)
+#' data clustering workflow, consolidating clusters based on differences in chromosomal arm-level
 #' copy number variations.
 #'
 #' @param input A named list where each element is a `GRanges` object representing a single cell.
@@ -71,7 +71,7 @@ pqArmClustering <- function(input, pqArm_file){
 #' @importFrom magrittr %>%
 #' @importFrom rlang .data
 #'
-#' @return A data frame recording both pqArm clustering and re-clustering results for each cell,
+#' @return A data frame recording both pqArm clustering and consolidating results for each cell,
 #'   maintaining the clustering history across steps.
 #'
 #' @export
@@ -81,16 +81,16 @@ pqArmClustering <- function(input, pqArm_file){
 #' Example_data <- changeFormat(file = file_path, core = 4)
 #'
 #' pqArm_result <- pqArmClustering(input = Example_data, pqArm_file = "hg38")
-#' Reclustering_output <- Reclustering(input = Example_data,
-#'                                     pqArm_output = pqArm_result,
-#'                                     pqArm_file = "hg38")
+#' Consolidating_output <- clusterConsolidation(input = Example_data,
+#'                                             pqArm_output = pqArm_result,
+#'                                             pqArm_file = "hg38")
 #'
-Reclustering <- function(input, pqArm_output, pqArm_file, difratio_chr=0.3){
-  message("=== Step 03: Reclustering ===")
+clusterConsolidation <- function(input, pqArm_output, pqArm_file, difratio_chr=0.3){
+  message("=== Step 03: Cluster consolidation ===")
 
   Recluster_Output <- NULL
   for(Label in unique(pqArm_output$cluster)){
-    ptm <- startTimed("Reclustering clusters to make cluster bigger ...")
+    ptm <- startTimed("Consolidating clusters to make cluster bigger ...")
     pqArm_merge_target <- NULL
     New_pqArm_clustering <- pqArm_recluster(pqArm_cluster = pqArm_output, Cluster = Label)
 
@@ -121,13 +121,13 @@ Reclustering <- function(input, pqArm_output, pqArm_file, difratio_chr=0.3){
 
 
 # 7.3: SubcloneClustering() stands for Subclone clsutering method
-#' Perform subclone clustering in scDNA-seq data clustering workflow
+#' Perform subclustering in scDNA-seq data clustering workflow
 #'
-#' This function executes the subclone clustering step in the single-cell DNA sequencing (scDNA-seq) data clustering workflow,
+#' This function executes the subclustering step in the single-cell DNA sequencing (scDNA-seq) data clustering workflow,
 #' refining clusters based on copy number variations (CNVs) within subpopulations of cells.
 #'
 #' @param input A named list where each element is a `GRanges` object representing a single cell.
-#' @param Reclustering_output A data frame recording pqArm clustering and re-clustering results for each cell.
+#' @param Consolidating_output A data frame recording pqArm clustering and consolidating results for each cell.
 #'   This table tracks the clustering history up to this stage.
 #' @param min_cell An integer specifying the minimum number of cells required for a cluster to be retained.
 #' @param overlap_region An integer representing the genomic region where copy number frequently changes.
@@ -135,7 +135,7 @@ Reclustering <- function(input, pqArm_output, pqArm_file, difratio_chr=0.3){
 #'   between cells within a cluster.
 #'
 #' @return A list containing two data frames:
-#'   - `final_cluster_output`: Records the clustering history from the pqArm, re-clustering, and subclone clustering steps.
+#'   - `final_cluster_output`: Records the clustering history from the pqArm, consolidating, and subclustering steps.
 #'   - `Subclone_CN`: Records each subclone's unique chromosome segment template and its copy number.
 #'     It includes the following columns:
 #'     - `chr`: Chromosome name (chr1, chr2, ...).
@@ -152,14 +152,14 @@ Reclustering <- function(input, pqArm_output, pqArm_file, difratio_chr=0.3){
 #' Example_data <- changeFormat(file = file_path, core = 4)
 #'
 #' pqArm_result <- pqArmClustering(input = Example_data, pqArm_file = "hg38")
-#' Reclustering_output <- Reclustering(input = Example_data,
-#'                                     pqArm_output = pqArm_result,
-#'                                     pqArm_file = "hg38")
-#' Subclone_output <- SubcloneClustering(input = Example_data,
-#'                                      Reclustering_output = Reclustering_output)
+#' Consolidating_output <- clusterConsolidation(input = Example_data,
+#'                                             pqArm_output = pqArm_result,
+#'                                             pqArm_file = "hg38")
+#' Subclone_output <- SubClustering(input = Example_data,
+#'                                      Consolidating_output = Consolidating_output)
 #'
-SubcloneClustering <- function(input, Reclustering_output, min_cell=5, overlap_region=10**7, dif_ratio=0.2){
-  message("=== Step 04: Subclone Clustering ===")
+SubClustering <- function(input, Consolidating_output, min_cell=5, overlap_region=10**7, dif_ratio=0.2){
+  message("=== Step 04: Subclustering ===")
 
   Final_output <- list()
   Subclone_cluster <- NULL
@@ -168,19 +168,19 @@ SubcloneClustering <- function(input, Reclustering_output, min_cell=5, overlap_r
 
   # from overlap_region to number of bins in coverage
   binsize <- as.data.frame(input[[1]]$bins)$width[1]
-  overlap_bp <- round(overlap_region/binsize, digits = 0)
+  overlap_bp <- round((overlap_region/binsize)/2, digits = 0)
 
   # Select enough cell number Reclusters, avoiding keep filtering
-  R <- Reclustering_output %>% dplyr::filter(.data$Recluster_cellnum >= min_cell)
+  R <- Consolidating_output %>% dplyr::filter(.data$Recluster_cellnum >= min_cell)
   for (Recluster_label in unique(R$Recluster_cluster)){
-    ptm <- startTimed("Subclone clustering for Recluster ", Recluster_label, " ... \n")
+    ptm <- startTimed("Subclustering for Recluster ", Recluster_label, " ... \n")
 
     breakpoints <- collect_cluster_bp(input = input, Clustering_output = R, Recluster_label = Recluster_label)
     Cell_num <- R %>% dplyr::filter(.data$Recluster_cluster == Recluster_label) %>% dplyr::pull(.data$Recluster_cellnum)
     bp <- output_bp_covers(Template = breakpoints, binsize = binsize, overlap=overlap_bp, overlap_times = Cell_num[1]*0.5) #overlap_times = 0.5*cell
     event_region <- bp_events(input = input, Template = bp, binsize = binsize)
     consensus_bp_template <- bp_region(event = event_region, binsize = binsize)
-    cell_CNregion <- Region_CN(input = input, Reclustering_output = Reclustering_output,
+    cell_CNregion <- Region_CN(input = input, Reclustering_output = Consolidating_output,
                                Recluster_label = Recluster_label, events = consensus_bp_template)
 
     if(is.null(cell_clustering) == TRUE){
@@ -203,7 +203,7 @@ SubcloneClustering <- function(input, Reclustering_output, min_cell=5, overlap_r
   }
 
   colnames(Subclone_cluster) <- c("Subclone_cluster", "cellID", "Subclone_cellnum")
-  Final_output <- list(final_cluster_output = dplyr::left_join(Reclustering_output, Subclone_cluster, by = "cellID"),
+  Final_output <- list(final_cluster_output = dplyr::left_join(Consolidating_output, Subclone_cluster, by = "cellID"),
                        Subclone_CN = Subclone_CNr)
 
 
@@ -219,7 +219,7 @@ SubcloneClustering <- function(input, Reclustering_output, min_cell=5, overlap_r
 #'
 #' @param input A named list where each element is a `GRanges` object representing a single cell.
 #' @param Summary A list containing two data frames:
-#'   - `final_cluster_output`: Records the clustering history from the pqArm, re-clustering, and subclone clustering steps.
+#'   - `final_cluster_output`: Records the clustering history from the pqArm, consolidating, and subclustering steps.
 #'   - `Subclone_CN`: Records each subclone's unique chromosome segment template and its copy number.
 #'     It includes the following columns:
 #'     - `chr`: Chromosome name (chr1, chr2, ...).
@@ -251,11 +251,11 @@ SubcloneClustering <- function(input, Reclustering_output, min_cell=5, overlap_r
 #' Example_data <- changeFormat(file = file_path, core = 4)
 #'
 #' pqArm_result <- pqArmClustering(input = Example_data, pqArm_file = "hg38")
-#' Reclustering_output <- Reclustering(input = Example_data,
-#'                                     pqArm_output = pqArm_result,
-#'                                     pqArm_file = "hg38")
-#' Subclone_output <- SubcloneClustering(input = Example_data,
-#'                                    Reclustering_output = Reclustering_output)
+#' Consolidating_output <- clusterConsolidation(input = Example_data,
+#'                                             pqArm_output = pqArm_result,
+#'                                             pqArm_file = "hg38")
+#' Subclone_output <- SubClustering(input = Example_data,
+#'                                      Consolidating_output = Consolidating_output)
 #' scDNA_Output(input = Example_data,
 #'              Summary = Final_output,
 #'              pqArm_file = "hg38")
@@ -275,16 +275,27 @@ scDNA_Output <- function(input, Summary, pqArm_file, output.dir=getwd(), consecu
 
   # 3. All CNV region in the sample
   CNV_Data <- Total_cnvRegion(input = input, Template = Summary$Subclone_CN, pqArm_file = pqArm_file, consecutive_region = consecutive_region)
-  CNV_Data <- cnvRegion.toPQarm(FILE = CNV_Data, pqArm_file = pqArm_file)
-  writeOutput(data = CNV_Data, filename = "/cnvTree.scDNAseq_DefinedCNVregion", path = output.dir)
-  message("Output /cnvTree.scDNAseq_DefinedCNVregion.txt is done.")
+  if (nrow(CNV_Data) != 0){
+    CNV_Data <- cnvRegion.toPQarm(FILE = CNV_Data, pqArm_file = pqArm_file)
+    writeOutput(data = CNV_Data, filename = "/cnvTree.scDNAseq_DefinedCNVregion", path = output.dir)
+    message("Output /cnvTree.scDNAseq_DefinedCNVregion.txt is done.")
+  } else {
+    message("Warning: Based on the length of consecutive_region, no CNV regions remain in the sample. \n
+            Consider lowering the consecutive_region parameter. \n
+            The file cnvTree.scDNAseq_DefinedCNVregion.txt and cnvTree.scDNAseq_DefinedCNVregion.txt was not generated.")
+  }
 
   # 4. DNA superimpose
-  DNA_superimpose <- scDNA.superimpose(Template = Summary, DefinedCNVs = CNV_Data)
-  DNA_superimpose <- scDNA.clustering(Template = DNA_superimpose)
-  writeOutput(data = DNA_superimpose$DNA_cluster, filename = "/cnvTree.scDNAseq_DNAcluster", path = output.dir)
-  message("Output /cnvTree.scDNAseq_DNAcluster.txt is done.")
-
+  if (nrow(CNV_Data) != 0){
+    DNA_superimpose <- scDNA.superimpose(Template = Summary, DefinedCNVs = CNV_Data)
+    DNA_superimpose <- scDNA.clustering(Template = DNA_superimpose)
+    writeOutput(data = DNA_superimpose$DNA_cluster, filename = "/cnvTree.scDNAseq_DNAcluster", path = output.dir)
+    message("Output /cnvTree.scDNAseq_DNAcluster.txt is done.")
+  } else {
+    message("Warning: Based on the length of consecutive_region, no CNV regions remain in the sample. \n
+            Consider lowering the consecutive_region parameter. \n
+            The file cnvTree.scDNAseq_DNAcluster.txt and cnvTree.scDNAseq_DefinedCNVregion.txt were not generated.")
+  }
 
   # 5. Final cluster heatmap
   Totalcluster_pdf(
@@ -295,9 +306,11 @@ scDNA_Output <- function(input, Summary, pqArm_file, output.dir=getwd(), consecu
 
   # 6. cluster heatmap with dendrogram
   scDNA_CNVpattern(Input=input, final_cluster = Summary$final_cluster_output, cellcutoff = cellcutoff,
-                   sexchromosome = sexchromosome_plot, smoothing = smoothheatmap,
-                   pqArm_file=pqArm_file, FILEpath=output.dir, FILEname=paste0("/cnvTree.scDNAseq_heatmap.png"))
+                 sexchromosome = sexchromosome_plot, smoothing = smoothheatmap,
+                 pqArm_file=pqArm_file, FILEpath=output.dir, FILEname=paste0("/cnvTree.scDNAseq_heatmap.png"))
   message("Output /cnvTree.scDNAseq_heatmap.png is done.")
+
+
 }
 
 
@@ -305,7 +318,7 @@ scDNA_Output <- function(input, Summary, pqArm_file, output.dir=getwd(), consecu
 #' One-Step scDNA-seq Cell Clustering Pipeline
 #'
 #' This function executes the entire single-cell DNA sequencing (scDNA-seq) clustering workflow in one step,
-#' including pqArm clustering, re-clustering, subclone clustering, and final CNV-based output generation.
+#' including pqArm clustering, consolidating, subclustering, and final CNV-based output generation.
 #'
 #' @param input A named list where each element is a `GRanges` object representing a single cell.
 #' @param pqArm_file In-build cytoband template for selection: `hg38`, `hg19`, `mm10`, `mm39`.
@@ -346,10 +359,10 @@ cnvTree_scDNAclustering <- function(input, pqArm_file, difratio_chr=0.3,
   pqArm_result <- pqArmClustering(input = input, pqArm_file = pqArm_file)
 
   # step 02: Re-clustering
-  Reclustering_output <- Reclustering(input = input, pqArm_output = pqArm_result, pqArm_file = pqArm_file, difratio_chr=difratio_chr)
+  Reclustering_output <- clusterConsolidation(input = input, pqArm_output = pqArm_result, pqArm_file = pqArm_file, difratio_chr=difratio_chr)
 
   # step 03: Subclone clustering
-  Subclone_output <- SubcloneClustering(input = input, Reclustering_output = Reclustering_output,
+  Subclone_output <- SubClustering(input = input, Consolidating_output = Reclustering_output,
                                      min_cell=min_cell_subclone, overlap_region=overlap_region_subclone, dif_ratio=dif_ratio_subclone)
 
   # step 04: Output

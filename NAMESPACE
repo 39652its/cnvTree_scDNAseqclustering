@@ -2,11 +2,11 @@
 
 export(CN_seq)
 export(GenomeHeatmap)
-export(Reclustering)
-export(SubcloneClustering)
+export(SubClustering)
 export(Total_cnvRegion)
 export(Totalcluster_pdf)
 export(changeFormat)
+export(clusterConsolidation)
 export(clusterbyHMM)
 export(cnvTree_scDNAclustering)
 export(pqArmClustering)
