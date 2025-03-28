@@ -754,16 +754,16 @@ scDNA_CNVpattern <- function(Input, final_cluster, cellcutoff, pqArm_file, FILEp
 generate_dynamic_colormap <- function(data_matrix) {
   unique_values <- sort(unique(as.vector(data_matrix)))
 
-  # 固定的顏色對應表，對應數值 0~5
-  predefined_colors <- c("#D0CECE", "#8165A3", "#9BBB59", "#FFC000", "#C0504D", "#ED7D31")
-  names(predefined_colors) <- 0:5  # 為 0~5 數值建立顏色對應表
+  # 固定的顏色對應表，對應數值 0~4
+  predefined_colors <- c("#D0CECE", "#8165A3", "#9BBB59", "#FFC000", "#C0504D") #orange: "#ED7D31"
+  names(predefined_colors) <- 0:4  # 為 0~4 數值建立顏色對應表
 
-  # 定義漸層調色板，用於處理超過 5 的數值
+  # 定義漸層調色板，用於處理超過 4 的數值
   gradient_palette <- grDevices::colorRampPalette(c("#c51b7d", "#130303"))
 
-  # 切分數值：0 到 5 和 大於 5
-  values_below_6 <- unique_values[unique_values <= 5]
-  values_above_5 <- unique_values[unique_values > 5]
+  # 切分數值：0 到 4 和 大於 4
+  values_below_6 <- unique_values[unique_values <= 4]
+  values_above_5 <- unique_values[unique_values > 4]
 
   # 分配顏色：0~5 的數值使用對應的顏色
   below_6_colors <- predefined_colors[as.character(values_below_6)]
